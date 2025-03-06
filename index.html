@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statement Validation</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+    body {
+      background-color: #f3f4f6;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+    .main-content {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex: 1;
+      padding: 16px;
+      margin-top: 80px;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #6c5ce7;
+    }
+    #progress-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #ddd;
+      margin: 0 6px;
+    }
+    .progress-dot.active {
+      background-color: #6c5ce7;
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      border: 2px solid #ddd;
+      border-radius: 6px;
+    }
+    .fact-input-container {
+      display: flex;
+      align-items: center;
+    }
+    .fact-input {
+      flex: 1;
+      padding: 10px;
+      margin-right: 8px;
+    }
+    .fact-add-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #e9d5ff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      height: 100%;
+    }
+    .fact-add-button:hover {
+      background-color: #bfdbfe;
+    }
+    .facts-list {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 12px;
+    }
+    .facts-list li {
+      padding: 8px;
+      margin: 6px 0;
+      border-left: 4px solid #e9d5ff;
+      background-color: #fafafa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .remove-fact {
+      background: none;
+      border: none;
+      color: #b91c1c;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .materiality-item {
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: #fafafa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .materiality-label {
+      margin-right: 8px;
+      flex: 1;
+    }
+    .materiality-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .materiality-button {
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .yes-button {
+      background-color: #bbf7d0;
+    }
+    .yes-button:hover {
+      background-color: #86efac;
+    }
+    .no-button {
+      background-color: #fecdd3;
+    }
+    .no-button:hover {
+      background-color: #fda4af;
+    }
+    .moral-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+      padding-left: 0;
+    }
+    .moral-item {
+      background-color: #fafafa;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .moral-label-and-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .remove-moral-item {
+      background: none;
+      border: none;
+      color: #b91c1c;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 16px;
+    }
+    .add-moral-container {
+      display: flex;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .add-moral-input {
+      flex: 1;
+      padding: 10px;
+      margin-right: 8px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+    }
+    .add-moral-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #e9d5ff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      height: 100%;
+    }
+    .add-moral-button:hover {
+      background-color: #bfdbfe;
+    }
+    .moral-item input[type="checkbox"] {
+      transform: scale(1.2);
+      margin-right: 8px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+    .buttons button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #e9d5ff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .buttons button:hover {
+      background-color: #bfdbfe;
+    }
+    .buttons button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .result-box {
+      padding: 16px;
+      margin-top: 16px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 8px;
+      color: #333;
+    }
+    #history-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 24px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 24px;
+      display: none;
+    }
+    #history-list {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .history-item {
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .history-label {
+      flex: 1;
+      margin-right: 16px;
+    }
+    .history-item-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .delete-button {
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #eee;
+      transition: background-color 0.3s ease;
+    }
+    .delete-button:hover {
+      background-color: #fecdd3;
+    }
+    .clear-all-button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #eee;
+      transition: background-color 0.3s ease;
+    }
+    .clear-all-button:hover {
+      background-color: #fecdd3;
+    }
+    #export-pdf {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #eee;
+      transition: background-color 0.3s ease;
+      margin-left: 16px;
+    }
+    #export-pdf:hover {
+      background-color: #bfdbfe;
+    }
+    .history-footer {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .bg-green {
+      background-color: lightgreen;
+    }
+    .bg-red {
+      background-color: lightcoral;
+    }
+    .bg-orange {
+      background-color: #FFDAB9;
+    }
+    @media (max-width: 600px) {
+      .container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      #history-container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+    @media print {
+      .main-content {
+        display: none;
+      }
+      #history-container {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <div class="container">
+      <h1>Statement Validation</h1>
+      <div id="progress-bar">
+        <div class="progress-dot active"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+      </div>
+
+      <div id="step1" class="step active">
+        <form id="form-step1">
+          <div class="field">
+            <label for="statement-input">Enter your statement</label>
+            <input
+              type="text"
+              id="statement-input"
+              placeholder="Example: Water boils at 100°C"
+              required
+              style="width:100%; padding:10px;"
+            />
+          </div>
+          <div class="buttons">
+            <button type="button" id="prev1" disabled>Previous</button>
+            <button type="submit" id="next1">Next</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="step2" class="step">
+        <p id="statement-text" style="font-weight:bold;"></p>
+        <form id="form-step2">
+          <div class="field">
+            <label for="fact-input">List the facts needed to prove this statement</label>
+            <div class="fact-input-container">
+              <input
+                type="text"
+                id="fact-input"
+                class="fact-input"
+                placeholder="Example: Water is liquid at room temperature"
+              />
+              <button type="button" class="fact-add-button" id="add-fact-btn">Add</button>
+            </div>
+            <ul class="facts-list" id="facts-list"></ul>
+          </div>
+          <div class="buttons">
+            <button type="button" id="prev2">Previous</button>
+            <button type="submit" id="next2">Next</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="step3" class="step">
+        <p>For each fact, indicate if there is scientific materiality:</p>
+        <div id="materiality-container"></div>
+        <div class="buttons">
+          <button type="button" id="prev3">Previous</button>
+          <button type="button" id="next3">Next</button>
+        </div>
+      </div>
+
+      <div id="step4" class="step">
+        <form id="form-step4">
+          <p>Do you want to evaluate the moral aspect of this statement?</p>
+          <div class="field">
+            <label><input type="radio" name="moralChoice" value="yes" required/> Yes</label>
+            <label><input type="radio" name="moralChoice" value="no"/> No</label>
+          </div>
+          <div class="buttons">
+            <button type="button" id="prev4">Previous</button>
+            <button type="submit" id="next4">Next</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="step5" class="step">
+        <form id="form-step5">
+          <p>Please check the applicable criteria:</p>
+          <div class="moral-list" id="moral-list-container"></div>
+          <div class="add-moral-container">
+            <input
+              type="text"
+              id="add-moral-input"
+              class="add-moral-input"
+              placeholder="Add a new moral criterion"
+            />
+            <button type="button" class="add-moral-button" id="add-moral-btn">Add</button>
+          </div>
+          <div class="buttons">
+            <button type="button" id="prev5">Previous</button>
+            <button type="submit" id="next5">Next</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="step6" class="step">
+        <div id="result-box" class="result-box"></div>
+        <div class="buttons">
+          <button type="button" id="prev6">Previous</button>
+          <button type="button" id="restart">Try again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="history-container">
+    <h2>History of Evaluations</h2>
+    <div id="history-list"></div>
+    <div id="history-footer" class="history-footer"></div>
+    <button id="clear-all" class="clear-all-button">Clear All</button>
+    <button id="export-pdf">Export to PDF</button>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    let moralEvaluationWanted = false;
+    let statement = "";
+    let facts = [];
+    let factsMateriality = [];
+    let moralItems = [
+      "Has no unfair, inequitable, or disrespectful effect",
+      "Respects human rights",
+      "Is not morally forbidden",
+      "Does not reduce the moral value of another person",
+      "Does not intentionally inflict harm or wrongdoing"
+    ];
+    let moralChecks = [];
+    let isStatementTrue = false;
+    let isStatementGood = false;
+    let verifiedCount = 0;
+    let verifiedPct = 0;
+    let moralCount = 0;
+    let moralPct = 0;
+    let savedStatements = [];
+    let autoIncrementID = 1;
+    let currentlyEditingID = null;
+    let db = null;
+
+    const steps = {
+      1: document.getElementById("step1"),
+      2: document.getElementById("step2"),
+      3: document.getElementById("step3"),
+      4: document.getElementById("step4"),
+      5: document.getElementById("step5"),
+      6: document.getElementById("step6")
+    };
+    const progressDots = document.querySelectorAll("#progress-bar .progress-dot");
+    const formStep1 = document.getElementById("form-step1");
+    const statementInput = document.getElementById("statement-input");
+    const formStep2 = document.getElementById("form-step2");
+    const factInput = document.getElementById("fact-input");
+    const addFactBtn = document.getElementById("add-fact-btn");
+    const factsList = document.getElementById("facts-list");
+    const statementText = document.getElementById("statement-text");
+    const materialityContainer = document.getElementById("materiality-container");
+    const formStep4 = document.getElementById("form-step4");
+    const formStep5 = document.getElementById("form-step5");
+    const moralListContainer = document.getElementById("moral-list-container");
+    const addMoralInput = document.getElementById("add-moral-input");
+    const addMoralBtn = document.getElementById("add-moral-btn");
+    const resultBox = document.getElementById("result-box");
+    const historyContainer = document.getElementById("history-container");
+    const historyList = document.getElementById("history-list");
+    const historyFooter = document.getElementById("history-footer");
+    const clearAllBtn = document.getElementById("clear-all");
+    const exportPdfBtn = document.getElementById("export-pdf");
+
+    function goToStep(n) {
+      steps[currentStep].classList.remove("active");
+      currentStep = n;
+      steps[currentStep].classList.add("active");
+      updateProgressBar();
+    }
+    function updateProgressBar() {
+      progressDots.forEach((dot, i) => {
+        if (i+1 === currentStep) dot.classList.add("active");
+        else dot.classList.remove("active");
+      });
+    }
+
+    // IndexedDB init
+    let request = window.indexedDB.open("StatementDB", 1);
+    request.onerror = function() {
+      console.error("IndexedDB error");
+    };
+    request.onsuccess = function(e) {
+      db = e.target.result;
+      loadFromDB();
+    };
+    request.onupgradeneeded = function(e) {
+      db = e.target.result;
+      if(!db.objectStoreNames.contains("statements")) {
+        db.createObjectStore("statements", { keyPath: "id" });
+      }
+    };
+
+    function loadFromDB() {
+      let txn = db.transaction(["statements"], "readonly");
+      let store = txn.objectStore("statements");
+      let getAll = store.getAll();
+      getAll.onsuccess = function(e) {
+        savedStatements = e.target.result || [];
+        renderHistory();
+      };
+    }
+
+    function saveToDB(obj) {
+      let txn = db.transaction(["statements"], "readwrite");
+      let store = txn.objectStore("statements");
+      store.put(obj);
+    }
+
+    function deleteFromDB(id) {
+      let txn = db.transaction(["statements"], "readwrite");
+      let store = txn.objectStore("statements");
+      store.delete(id);
+    }
+
+    formStep1.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!statementInput.value.trim()) return;
+      statement = statementInput.value.trim();
+      statementText.textContent = "Statement: " + statement;
+      goToStep(2);
+    });
+    document.getElementById("prev1").disabled = true;
+
+    addFactBtn.addEventListener("click", addFact);
+    factInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addFact();
+      }
+    });
+    function addFact() {
+      let val = factInput.value.trim();
+      if (!val) return;
+      facts.push(val);
+      factInput.value = "";
+      factInput.focus();
+      renderFacts();
+    }
+    function renderFacts() {
+      factsList.innerHTML = "";
+      facts.forEach((f, index) => {
+        let li = document.createElement("li");
+        li.textContent = f;
+        let btn = document.createElement("button");
+        btn.textContent = "✕";
+        btn.className = "remove-fact";
+        btn.addEventListener("click", () => {
+          facts.splice(index, 1);
+          factsMateriality.splice(index, 1);
+          renderFacts();
+        });
+        li.appendChild(btn);
+        factsList.appendChild(li);
+      });
+    }
+    formStep2.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (factInput.value.trim()) addFact();
+      if (facts.length === 0) return;
+      goToStep(3);
+      buildMaterialityList();
+    });
+    document.getElementById("prev2").addEventListener("click", () => {
+      goToStep(1);
+    });
+
+    document.getElementById("prev3").addEventListener("click", () => goToStep(2));
+    document.getElementById("next3").addEventListener("click", () => {
+      if (facts.length === 0) return;
+      if (factsMateriality.length < facts.length || factsMateriality.includes(null)) return;
+      verifiedCount = factsMateriality.filter(v => v === true).length;
+      verifiedPct = Math.round((verifiedCount / facts.length) * 100);
+      isStatementTrue = (verifiedCount === facts.length);
+      goToStep(4);
+    });
+    function buildMaterialityList() {
+      materialityContainer.innerHTML = "";
+      facts.forEach((f, index) => {
+        if (factsMateriality[index] === undefined) {
+          factsMateriality[index] = null;
+        }
+        let item = document.createElement("div");
+        item.className = "materiality-item";
+        let label = document.createElement("div");
+        label.className = "materiality-label";
+        label.textContent = f;
+        let btns = document.createElement("div");
+        btns.className = "materiality-buttons";
+        let yesBtn = document.createElement("button");
+        yesBtn.type = "button";
+        yesBtn.textContent = "Yes";
+        yesBtn.className = "materiality-button yes-button";
+        yesBtn.addEventListener("click", () => {
+          factsMateriality[index] = true;
+          item.style.backgroundColor = "#bbf7d0";
+        });
+        let noBtn = document.createElement("button");
+        noBtn.type = "button";
+        noBtn.textContent = "No";
+        noBtn.className = "materiality-button no-button";
+        noBtn.addEventListener("click", () => {
+          factsMateriality[index] = false;
+          item.style.backgroundColor = "#fecdd3";
+        });
+        if (factsMateriality[index] === true) {
+          item.style.backgroundColor = "#bbf7d0";
+        } else if (factsMateriality[index] === false) {
+          item.style.backgroundColor = "#fecdd3";
+        }
+        btns.appendChild(yesBtn);
+        btns.appendChild(noBtn);
+        item.appendChild(label);
+        item.appendChild(btns);
+        materialityContainer.appendChild(item);
+      });
+    }
+
+    formStep4.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let choice = document.querySelector('input[name="moralChoice"]:checked');
+      if (!choice) return;
+      moralEvaluationWanted = (choice.value === "yes");
+      if (moralEvaluationWanted) {
+        goToStep(5);
+      } else {
+        goToStep(6);
+        showResult(true);
+        saveCurrentStatement();
+      }
+    });
+    document.getElementById("prev4").addEventListener("click", () => goToStep(3));
+
+    addMoralBtn.addEventListener("click", addMoralItem);
+    function addMoralItem() {
+      let val = addMoralInput.value.trim();
+      if (!val) return;
+      moralItems.push(val);
+      addMoralInput.value = "";
+      addMoralInput.focus();
+      renderMoralItems();
+    }
+    function removeMoralItem(index) {
+      moralItems.splice(index, 1);
+      if (moralChecks[index] !== undefined) {
+        moralChecks.splice(index, 1);
+      }
+      renderMoralItems();
+    }
+    function renderMoralItems() {
+      moralListContainer.innerHTML = "";
+      if (moralChecks.length < moralItems.length) {
+        for (let i = moralChecks.length; i < moralItems.length; i++) {
+          moralChecks[i] = false;
+        }
+      }
+      moralItems.forEach((itemLabel, idx) => {
+        let itemDiv = document.createElement("div");
+        itemDiv.className = "moral-item";
+        let labelAndCheck = document.createElement("div");
+        labelAndCheck.className = "moral-label-and-check";
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = moralChecks[idx];
+        checkbox.addEventListener("change", () => {
+          moralChecks[idx] = checkbox.checked;
+        });
+        let label = document.createElement("span");
+        label.textContent = itemLabel;
+        labelAndCheck.appendChild(checkbox);
+        labelAndCheck.appendChild(label);
+        let removeBtn = document.createElement("button");
+        removeBtn.className = "remove-moral-item";
+        removeBtn.textContent = "✕";
+        removeBtn.addEventListener("click", () => removeMoralItem(idx));
+        itemDiv.appendChild(labelAndCheck);
+        itemDiv.appendChild(removeBtn);
+        moralListContainer.appendChild(itemDiv);
+      });
+    }
+    formStep5.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!moralEvaluationWanted) return;
+      moralCount = moralChecks.filter(Boolean).length;
+      moralPct = moralItems.length > 0 ? Math.round((moralCount / moralItems.length) * 100) : 0;
+      isStatementGood = (moralCount === moralItems.length && moralItems.length>0);
+      goToStep(6);
+      showResult(true);
+      saveCurrentStatement();
+    });
+    document.getElementById("prev5").addEventListener("click", () => {
+      goToStep(4);
+    });
+
+    document.getElementById("prev6").addEventListener("click", () => {
+      if (!moralEvaluationWanted) {
+        goToStep(4);
+      } else {
+        goToStep(5);
+      }
+    });
+    document.getElementById("restart").addEventListener("click", () => {
+      resetAllData();
+      goToStep(1);
+    });
+
+    function showResult(forceLastDot = false) {
+      let textResult = statement + " : ";
+      let veracityLabel = isStatementTrue ? "100% true" : (verifiedPct + "% true");
+      textResult += veracityLabel;
+      if (moralEvaluationWanted) {
+        let moralLabel = isStatementGood ? "100% good" : (moralPct + "% good");
+        textResult += " | " + moralLabel;
+      }
+      resultBox.textContent = textResult;
+      let color = "lightcoral";
+      if (isStatementTrue && (!moralEvaluationWanted || isStatementGood)) {
+        color = "lightgreen";
+      } else if (
+        (isStatementTrue && !isStatementGood) ||
+        (!isStatementTrue && isStatementGood)
+      ) {
+        color = "#FFDAB9";
+      }
+      resultBox.style.backgroundColor = color;
+      if (forceLastDot) {
+        progressDots.forEach(d => d.classList.remove("active"));
+        if (progressDots.length >= 6) {
+          progressDots[5].classList.add("active");
+        }
+      }
+    }
+
+    clearAllBtn.addEventListener("click", () => {
+      let txn = db.transaction(["statements"], "readwrite");
+      let store = txn.objectStore("statements");
+      let clearReq = store.clear();
+      clearReq.onsuccess = function() {
+        savedStatements = [];
+        renderHistory();
+        resetAllData();
+        goToStep(1);
+      };
+    });
+    exportPdfBtn.addEventListener("click", () => {
+      let content = `
+        <html>
+          <head>
+            <meta charset="UTF-8"/>
+            <title>Exported History</title>
+            <style>
+              table { border-collapse: collapse; margin: 50px auto; }
+              td, th { border: 1px solid #ccc; padding: 8px 12px; text-align: center; }
+              th { background-color: #f3f4f6; }
+            </style>
+          </head>
+          <body>
+            <table>
+              <tr>
+                <th>Statement</th>
+                <th>Veracity (%)</th>
+                <th>Moral (%)</th>
+              </tr>
+      `;
+      savedStatements.forEach(s => {
+        let veracity = s.isTrue ? "100" : s.verifiedPct.toString();
+        let moral = "";
+        if (s.moralWanted) {
+          moral = s.isGood ? "100" : (s.moralPct.toString());
+        } else {
+          moral = "N/A";
+        }
+        content += `
+          <tr>
+            <td>${s.statement}</td>
+            <td>${veracity}</td>
+            <td>${moral}</td>
+          </tr>
+        `;
+      });
+      content += `</table></body></html>`;
+      let newWin = window.open("", "_blank");
+      newWin.document.write(content);
+      newWin.document.close();
+      newWin.focus();
+      newWin.print();
+      newWin.close();
+    });
+
+    function renderHistory() {
+      if (savedStatements.length === 0) {
+        historyContainer.style.display = "none";
+        return;
+      }
+      historyContainer.style.display = "block";
+      historyList.innerHTML = "";
+      let totalCount = savedStatements.length;
+      let sumVerifiedPct = 0;
+      let sumMoralPct = 0;
+      let moralCountInHistory = 0;
+      savedStatements.forEach(s => {
+        sumVerifiedPct += s.verifiedPct;
+        if (s.moralWanted) {
+          sumMoralPct += s.moralPct;
+          moralCountInHistory++;
+        }
+      });
+      let avgVerifiedPct = Math.round(sumVerifiedPct / totalCount);
+      let avgMoralPct = null;
+      if (moralCountInHistory > 0) {
+        avgMoralPct = Math.round(sumMoralPct / moralCountInHistory);
+      }
+      let consolidatedIsTrue = (avgVerifiedPct === 100);
+      let consolidatedIsGood = false;
+      if (avgMoralPct !== null && avgMoralPct === 100 && moralCountInHistory === totalCount) {
+        consolidatedIsGood = true;
+      }
+      let consolidatedColor = "bg-red";
+      if (consolidatedIsTrue && (!avgMoralPct || consolidatedIsGood)) {
+        consolidatedColor = "bg-green";
+      } else if (
+        (consolidatedIsTrue && !consolidatedIsGood) ||
+        (!consolidatedIsTrue && consolidatedIsGood)
+      ) {
+        consolidatedColor = "bg-orange";
+      }
+      let lineText = "Consolidated result: ";
+      if (consolidatedIsTrue) {
+        lineText += "100% true";
+      } else {
+        lineText += avgVerifiedPct + "% true";
+      }
+      if (avgMoralPct !== null) {
+        if (consolidatedIsGood) {
+          lineText += " | 100% good";
+        } else {
+          lineText += " | " + avgMoralPct + "% good";
+        }
+      }
+
+      savedStatements.forEach(s => {
+        let item = document.createElement("div");
+        item.className = "history-item";
+        let colorClass = "bg-red";
+        if (s.isTrue && (!s.moralWanted || s.isGood)) {
+          colorClass = "bg-green";
+        } else if ((s.isTrue && !s.isGood) || (!s.isTrue && s.isGood)) {
+          colorClass = "bg-orange";
+        }
+        item.classList.add(colorClass);
+        let labelDiv = document.createElement("div");
+        labelDiv.className = "history-label";
+        let veracityLabel = s.isTrue ? "100% true" : (s.verifiedPct + "% true");
+        let moralLabel = "";
+        if (s.moralWanted) {
+          moralLabel = s.isGood ? " | 100% good" : " | " + s.moralPct + "% good";
+        }
+        labelDiv.textContent = s.statement + " : " + veracityLabel + moralLabel;
+        let btnsDiv = document.createElement("div");
+        btnsDiv.className = "history-item-buttons";
+        let deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-button";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          savedStatements = savedStatements.filter(x => x.id !== s.id);
+          let txn = db.transaction(["statements"], "readwrite");
+          let store = txn.objectStore("statements");
+          store.delete(s.id);
+          renderHistory();
+        });
+        btnsDiv.appendChild(deleteBtn);
+        item.appendChild(labelDiv);
+        item.appendChild(btnsDiv);
+
+        // Lorsqu'on clique pour modifier
+        item.addEventListener("click", () => {
+          loadStatementForEdit(s);
+        });
+
+        historyList.appendChild(item);
+      });
+      historyFooter.className = "history-footer " + consolidatedColor;
+      historyFooter.textContent = lineText;
+    }
+
+    function saveCurrentStatement() {
+      // S’il n’y a pas encore d’ID, on en attribue un nouvel autoIncrementID
+      if (currentlyEditingID === null) {
+        currentlyEditingID = autoIncrementID++;
+      }
+    
+      // On construit l’objet avec l’ID actuel
+      let obj = {
+        id: currentlyEditingID,
+        statement: statement,
+        facts: [...facts],
+        factsMateriality: [...factsMateriality],
+        moralItems: [...moralItems],
+        moralChecks: [...moralChecks],
+        moralWanted: moralEvaluationWanted,
+        verifiedPct: verifiedPct,
+        moralPct: moralEvaluationWanted ? moralPct : null,
+        isTrue: isStatementTrue,
+        isGood: isStatementGood
+      };
+    
+      // On supprime l’ancienne version s’il y en avait une avec le même ID
+      savedStatements = savedStatements.filter(x => x.id !== obj.id);
+    
+      // On push la nouvelle version
+      savedStatements.push(obj);
+      
+      // On enregistre en base (IndexedDB)
+      let txn = db.transaction(["statements"], "readwrite");
+      let store = txn.objectStore("statements");
+      store.put(obj);
+    
+      // Puis on rafraîchit l’affichage de l’historique
+      renderHistory();
+    }
+
+
+    function loadStatementForEdit(s) {
+      // On réinitialise tout
+      resetAllData();
+
+      // On remet l'ID de l'élément qu'on édite
+      currentlyEditingID = s.id; // c'est reparti en mode "édition"
+
+      // On recharge ses données
+      statement = s.statement;
+      facts = [...s.facts];
+      factsMateriality = [...s.factsMateriality];
+      moralItems = [...s.moralItems];
+      moralChecks = [...s.moralChecks];
+      moralEvaluationWanted = s.moralWanted;
+      verifiedPct = s.verifiedPct;
+      moralPct = s.moralPct;
+      isStatementTrue = s.isTrue;
+      isStatementGood = s.isGood;
+
+      // On rafraîchit l'écran
+      statementInput.value = statement;
+      statementText.textContent = "Statement: " + statement;
+      renderFacts();
+      buildMaterialityList();
+
+      const rad = document.querySelectorAll('input[name="moralChoice"]');
+      rad.forEach(r => {
+        if (r.value === "yes") r.checked = moralEvaluationWanted;
+        if (r.value === "no") r.checked = !moralEvaluationWanted;
+      });
+
+      renderMoralItems();
+
+      // On revient à l'étape 1 seulement
+      goToStep(1);
+    }
+
+    function resetAllData() {
+      // On enlève la classe .active à toutes les étapes
+      for (let i = 1; i <= 6; i++) {
+        steps[i].classList.remove("active");
+      }
+    
+      // Ensuite on réinitialise notre compteur d’étape
+      currentStep = 1;
+      steps[currentStep].classList.add("active");
+    
+      // Et on remet tout le reste à zéro comme avant
+      moralEvaluationWanted = false;
+      statement = "";
+      facts = [];
+      factsMateriality = [];
+      moralChecks = [];
+      isStatementTrue = false;
+      isStatementGood = false;
+      verifiedCount = 0;
+      verifiedPct = 0;
+      moralCount = 0;
+      moralPct = 0;
+      currentlyEditingID = null;
+    
+      statementInput.value = "";
+      statementText.textContent = "";
+      factInput.value = "";
+      factsList.innerHTML = "";
+      materialityContainer.innerHTML = "";
+      document
+        .querySelectorAll('input[name="moralChoice"]')
+        .forEach((r) => (r.checked = false));
+      renderMoralItems();
+      resultBox.textContent = "";
+      resultBox.style.backgroundColor = "";
+    
+      // Enfin, on met à jour la barre de progression
+      progressDots.forEach((d) => d.classList.remove("active"));
+      progressDots[0].classList.add("active");
+    }
+
+    
+    
+    function initMoralChecks() {
+      moralChecks = moralItems.map(() => false);
+    }
+    initMoralChecks();
+    renderMoralItems();
+  </script>
+</body>
+</html>
