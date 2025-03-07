@@ -380,6 +380,36 @@
   </style>
 </head>
 <body>
+<!-- GitHub Repository Link Banner -->
+<div id="github-banner" style="background-color: #24292e; color: #fff; padding: 10px; text-align: center; font-size: 14px;">
+  <p>
+    View our project on 
+    <a href="https://github.com/guillaumefe/factcheck.git" target="_blank" style="color: #0366d6; text-decoration: none;">GitHub</a>.
+  </p>
+</div>
+
+<!-- Donation Banner -->
+<div id="donation-banner" style="display:none;background-color: #444; color: #fff; padding: 20px; text-align: center;">
+  <h2 style="margin-bottom: 10px;">Support Our Project</h2>
+  <p style="margin-bottom: 15px;">
+    Scan the QR code below or copy the address to make a Bitcoin donation.
+  </p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bitcoin:#TODO" alt="Bitcoin QR Code" style="margin-bottom: 10px;">
+  <button onclick="copyBTCAddress()" style="display: block; margin: 0 auto; padding: 8px 12px; background: #f7931a; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    Copy Address
+  </button>
+</div>
+
+<script>
+  function copyBTCAddress() {
+    const btcAddress = "1YourBitcoinAddressHere"; // Replace with your actual Bitcoin address
+    navigator.clipboard.writeText(btcAddress)
+      .then(() => alert("BTC address copied to clipboard!"))
+      .catch(() => alert("Error copying BTC address."));
+  }
+</script>
+
+
   <div class="main-content">
     <div class="container">
       <h1 id="factcheck-title" style="cursor: pointer;">FactCheck</h1>
@@ -486,6 +516,17 @@
     <button id="clear-all" class="clear-all-button">Clear All</button>
     <button id="export-pdf">Export to PDF</button>
   </div>
+<!-- Signal Group Contact Banner to be placed at the bottom of your site -->
+<div id="contact-banner" style="background-color: #222; color: #fff; padding: 20px; text-align: center; margin-top: 20px;">
+  <h2 style="margin-bottom: 10px;">Have Suggestions or Need Extra Features?</h2>
+  <p style="margin-bottom: 15px;">
+    We'd love to hear from you! To contact us via Signal without exposing a personal phone number, please join our Signal group using the link below.
+  </p>
+  <!-- Replace the URL below with your actual Signal group invite link -->
+  <a href="https://signal.group/#CjQKINT3K40vkGvZh_pz3JbnvH8qSDufHPOBqeGbDaTJ0QMFEhCn2vYUyQEA02HMfejhTXXZ" target="_blank" style="display: inline-block; padding: 10px 20px; background: #3c3c3d; color: #fff; border-radius: 5px; text-decoration: none;">
+    Join our Signal Group
+  </a>
+</div>
 
   <script>
     // ---------------------------
@@ -1354,7 +1395,6 @@
       resetAllData();
       goToStep(1);
     });
-
   </script>
 </body>
 </html>
