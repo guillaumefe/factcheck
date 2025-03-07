@@ -1,39 +1,57 @@
 # FactCheck
 
-An automated fact checker with an optional moral evaluation step. **FactCheck** helps users break down any statement into concrete facts, assess their scientific relevance, and optionally evaluate moral considerations.
+An automated fact checker that helps break down any statement into concrete facts, assess their scientific veracity, and optionally attach proofs/references.
 
 ## Features
 
 - **Multi-Step Wizard**  
-  Enter your statement, list the necessary facts, determine factual relevance, and optionally perform a moral check.
-  
-- **Dynamic Interface**  
-  Progress is highlighted step by step. The interface automatically shows or hides form elements based on user choices.
-  
-- **Local Storage (IndexedDB)**  
-  All evaluations are stored in your browser’s IndexedDB. No server is required.
-  
+  1. **Enter Statement**: Provide any statement to be evaluated.  
+  2. **List Facts**: Identify the key facts required to validate the statement.  
+  3. **Determine Materiality**: Mark each fact as *true* or *false* (i.e., whether it is scientifically sound).  
+  4. **Add Proofs**: If at least one fact is marked *true*, you can optionally add proofs or references for those facts.  
+     - If no facts are marked *true*, this step is automatically skipped.  
+  5. **Final Result**: Shows the overall veracity percentage, color-coded:
+    - **Red** if ≤ 50%  
+    - **Orange** if 51–90%  
+    - **Green** if > 90%
+
+- **Local Storage via IndexedDB**  
+  All evaluations are stored directly in your browser. No external database or server is needed.
+
 - **History & Editing**  
-  Each completed evaluation appears in the History panel. Click on an entry to reload and edit it (replacing the old entry).
-  
+  - Each completed evaluation is added to the History panel.  
+  - You can click any history item to reload and edit it.  
+  - Edits overwrite the original entry, preserving the same ID.
+
+- **Import/Export JSON**  
+  - **Export**: Save all evaluations as a single JSON file.  
+  - **Import**: Restore previously exported evaluations to exactly the same state.
+
 - **PDF/Print Export**  
-  Export or print a simple table of all stored evaluations.
+  - One-click export to PDF (or direct printing) from the History panel.  
+  - Generates a cover page (title, date, count of statements), followed by a table of statements (color-coded veracity) and detailed fact-proof listings.  
+  - Each statement in the table is a clickable link pointing to its details.
 
 ## Usage
 
-1. **Open** `index.html` in a modern web browser that supports IndexedDB.  
-2. **Follow the steps** to input a statement and relevant facts.  
-3. **Decide** whether you want a moral check.  
-4. **Finish** to see the results and add the evaluation to the History.  
-5. **Edit or Delete** entries from the History at any time, or clear them all.
+1. **Open** `index.html` in a modern browser (IndexedDB support required).  
+2. **Enter a statement** and follow the wizard steps:  
+   - List facts  
+   - Mark each as true/false  
+   - Optionally add proofs if any fact is true  
+3. **Finish** to see the final result and add it to your History.  
+4. **Use the History** to review, edit, delete, or clear all evaluations.  
+5. **Import or Export** your current data as JSON via the buttons under “Enter your statement.”  
+6. **Export to PDF** to generate a cover page, summary table, and detailed pages for each statement.
 
 ## Technical Notes
 
-- **Pure JavaScript**: No external libraries are required.  
-- **Responsive Layout**: Basic CSS ensures a neat display on mobile and desktop.  
-- **IndexedDB**: Data is stored locally, right in your browser.
+- **Pure HTML/CSS/JavaScript**: No frameworks or external libraries.  
+- **IndexedDB**: Evaluations persist locally, even after page refresh.  
+- **Responsive**: Basic CSS ensures functionality on desktop or mobile.  
+- **Color-Coding**: Veracity percentage ≤ 50% is red, 51–90% is orange, and > 90% is green.
 
 ## License
 
 FactCheck is released under the **GNU General Public License v2 (GPLv2)**.  
-Feel free to modify and distribute this code under the terms of the GPLv2.
+You are free to modify and redistribute this code under its terms.
