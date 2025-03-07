@@ -413,8 +413,8 @@
 
         <!-- NEW BLOCK: Import/Export JSON -->
         <div style="margin-top:30px; border-top:1px solid #ddd; padding-top:20px;">
-          <button id="export-json">Export Memory as JSON</button>
           <button id="import-json">Import Memory from JSON</button>
+          <button id="export-json">Export Memory as JSON</button>
         </div>
         <!-- End NEW BLOCK -->
       </div>
@@ -934,98 +934,176 @@
     });
 
     exportPdfBtn.addEventListener("click", () => {
-      // Construction du contenu HTML à imprimer
-      let content = `
-        <html>
-          <head>
-            <meta charset="UTF-8"/>
-            <title>Exported History</title>
-            <style>
-              table { border-collapse: collapse; margin: 50px auto; }
-              td, th { border: 1px solid #ccc; padding: 8px 12px; text-align: center; }
-              th { background-color: #f3f4f6; }
-              .bg-red { background-color: lightcoral; }
-              .bg-orange { background-color: #FFDAB9; }
-              .bg-green { background-color: lightgreen; }
-              .page-break { page-break-after: always; }
-              .fact-title { font-weight: bold; margin: 20px 0 8px 0; }
-              .single-col-table { border-collapse: collapse; margin-bottom: 30px; width: 80%; }
-              .single-col-table td, .single-col-table th {
-                border: 1px solid #ccc;
-                padding: 8px;
-              }
-            </style>
-          </head>
-          <body>
-            <table>
-              <tr>
-                <th>Statement</th>
-                <th>Veracity (%)</th>
-                <th>Proofs</th>
-              </tr>
-      `;
-      // Pour chaque statement sauvegardé, on crée une ligne
-      savedStatements.forEach(s => {
-        const veracity = s.verifiedPct;
-        // On protège contre le fait que s.factsProofs peut être undefined dans d'anciens enregistrements
-        const totalProofsCount = (s.factsProofs || []).reduce((acc, arr) => acc + (arr ? arr.length : 0), 0);
-
-        let rowColorClass = "bg-red";
-        if (veracity > 90) rowColorClass = "bg-green";
-        else if (veracity > 50) rowColorClass = "bg-orange";
-
-        content += `
-          <tr class="${rowColorClass}">
-            <td>${escapeHtml(s.statement)}</td>
-            <td>${veracity}</td>
-            <td>${totalProofsCount}</td>
-          </tr>
-        `;
-      });
-
-      content += `</table>`;
-
-      // Saut de page
-      content += `<div class="page-break"></div>`;
-
-      // Ensuite, pour chaque statement, on liste ses faits + statut (vrai/faux) + un tableau 1 colonne de proofs
-      savedStatements.forEach((s, sIndex) => {
-        content += `<div><h3>Statement: ${escapeHtml(s.statement)}</h3></div>`;
-        const factsArr = s.facts || [];
-        const matArr = s.factsMateriality || [];
-        const proofsArr = s.factsProofs || []; // fallback
-        factsArr.forEach((fact, fIndex) => {
-          let isTrueFact = matArr[fIndex];
-          let trueFalseLabel = (isTrueFact === true) ? "true" : "false";
-
-          content += `<div class="fact-title">Fact #${fIndex+1} - ${escapeHtml(fact)} (${trueFalseLabel})</div>`;
-          
-          // Construction du tableau 1 colonne pour les proofs (uniquement si fact = true)
-          if (isTrueFact === true && proofsArr[fIndex] && proofsArr[fIndex].length > 0) {
-            content += `<table class="single-col-table">`;
-            content += `<tr><th>Materialities / Proofs</th></tr>`;
-            proofsArr[fIndex].forEach(proof => {
-              content += `<tr><td>${escapeHtml(proof)}</td></tr>`;
-            });
-            content += `</table>`;
-          } else if (isTrueFact === true) {
-            content += `<p>No materialities provided.</p>`;
-          } else {
-            content += `<p>(Not applicable, fact declared false.)</p>`;
-          }
-          // Saut de page après chaque fait
-          content += `<div class="page-break"></div>`;
+        // 1) Prompt user for a report name
+        let userTitle = prompt("Enter a report name (leave blank to skip, cancel to abort):","");
+        if (userTitle === null) {
+          // The user pressed cancel => we do NOT export at all
+          return;
+        }
+        // If blank => fallback to "Report"
+        if (!userTitle.trim()) {
+          userTitle = "Report";
+        } else {
+          // Capitalize each word in the custom name
+          // e.g. "my example report" => "My Example Report"
+          userTitle = userTitle
+            .split(/\s+/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(" ");
+        }
+    
+        // 2) Compute the average veracity across all statements
+        let totalCount = savedStatements.length;
+        if (totalCount === 0) {
+          alert("No statements to export.");
+          return;
+        }
+        let sumVeracity = 0;
+        savedStatements.forEach(s => {
+          sumVeracity += s.verifiedPct;
         });
-      });
-
-      content += `</body></html>`;
-
-      let newWin = window.open("", "_blank");
-      newWin.document.write(content);
-      newWin.document.close();
-      newWin.focus();
-      newWin.print();
-      newWin.close();
+        let avgVeracity = Math.round(sumVeracity / totalCount);
+    
+        // 3) Determine prefix: "TRUE", "ALMOST_TRUE", "ALMOST_FALSE", or "FALSE"
+        //    - 100 => "TRUE"
+        //    - 81..99 => "FALSE"
+        //    - 51..80 => "ALMOST_TRUE"
+        //    - 0..50 => "ALMOST_FALSE"
+        let prefix = "FALSE"; // default
+        if (avgVeracity === 100) {
+          prefix = "TRUE";
+        } else if (avgVeracity > 80) {
+          prefix = "FALSE"; // because 81..99 => "FALSE"
+        } else if (avgVeracity > 50) {
+          prefix = "ALMOST_TRUE";
+        } else {
+          // 0..50 => ALMOST_FALSE
+          prefix = "ALMOST_FALSE";
+        }
+    
+        // 4) Nicely formatted date for display and file name
+        // Example format: "March 12, 2025, 14:05"
+        let now = new Date();
+        let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        let niceDateDisplay = now.toLocaleString('en-US', options);
+    
+        // Also build a file-friendly date for the file name, e.g. "2025-03-12_14h05"
+        let yyyy = now.getFullYear();
+        let mm = String(now.getMonth()+1).padStart(2,'0');
+        let dd = String(now.getDate()).padStart(2,'0');
+        let hh = String(now.getHours()).padStart(2,'0');
+        let min = String(now.getMinutes()).padStart(2,'0');
+        let fileDate = `${yyyy}-${mm}-${dd}_${hh}h${min}m`;
+    
+        // 5) Construct the file name => <PREFIX>-<NoSpacesUserTitle>-<fileDate>
+        //    We remove spaces in userTitle by using dashes:
+        let titleNoSpaces = userTitle.replace(/\s+/g, '-');
+        let fileName = `${prefix}-${titleNoSpaces}-${fileDate}`;
+    
+        // 6) Build the HTML with a cover page (title, date, count) and
+        //    a new page for the table (with anchor links), then detail pages.
+        let coverPage = `
+          <div class="cover-page" style="page-break-after: always; text-align:center; margin-top:100px;">
+            <h1>${escapeHtml(userTitle)}</h1>
+            <p>${escapeHtml(niceDateDisplay)}</p>
+            <p>${savedStatements.length} statement(s) evaluated</p>
+          </div>
+        `;
+        
+        // Table page with anchor links (its own page)
+        // Each statement links to "#statement-sIndex"
+        let tablePage = `
+          <div style="page-break-after: always;">
+            <table style="margin-top:50px; border-collapse: collapse; margin-left:auto; margin-right:auto;">
+              <tr>
+                <th style="border:1px solid #ccc; padding:8px;">Statement</th>
+                <th style="border:1px solid #ccc; padding:8px;">Veracity (%)</th>
+                <th style="border:1px solid #ccc; padding:8px;">Proofs</th>
+              </tr>
+        `;
+        // Build each row with anchor link
+        savedStatements.forEach((s, sIndex) => {
+          const veracity = s.verifiedPct;
+          const totalProofsCount = (s.factsProofs || []).reduce((acc, arr) => acc + (arr ? arr.length : 0), 0);
+    
+          // Simple color classification for table row
+          let rowColor = "lightcoral"; // red by default
+          if (veracity > 90) rowColor = "lightgreen";
+          else if (veracity > 50) rowColor = "#FFDAB9";
+    
+          tablePage += `
+            <tr style="background-color:${rowColor};">
+              <td style="border:1px solid #ccc; padding:8px;">
+                <a href="#statement-${sIndex}">${escapeHtml(s.statement)}</a>
+              </td>
+              <td style="border:1px solid #ccc; padding:8px;">${veracity}</td>
+              <td style="border:1px solid #ccc; padding:8px;">${totalProofsCount}</td>
+            </tr>
+          `;
+        });
+        tablePage += `</table></div>`;
+    
+        // Then detail pages for each statement
+        let detailPages = "";
+        savedStatements.forEach((s, sIndex) => {
+          detailPages += `<div id="statement-${sIndex}"><h3>${escapeHtml(s.statement)}</h3></div>`;
+          let factsArr = s.facts || [];
+          let matArr = s.factsMateriality || [];
+          let proofsArr = s.factsProofs || [];
+    
+          factsArr.forEach((fact, fIndex) => {
+            let isTrueFact = matArr[fIndex];
+            let labelTF = isTrueFact ? "true" : "false";
+            detailPages += `<div style="font-weight:bold; margin:20px 0 8px 0;">
+              Fact #${fIndex+1} - ${escapeHtml(fact)} (${labelTF})
+            </div>`;
+    
+            if (isTrueFact && proofsArr[fIndex] && proofsArr[fIndex].length>0) {
+              detailPages += `
+                <table style="border-collapse: collapse; margin-bottom:30px; width:80%;">
+                  <tr><th style="border:1px solid #ccc; padding:8px;">Materialities / Proofs</th></tr>
+              `;
+              proofsArr[fIndex].forEach(pr => {
+                detailPages += `<tr>
+                  <td style="border:1px solid #ccc; padding:8px;">
+                    ${escapeHtml(pr)}
+                  </td>
+                </tr>`;
+              });
+              detailPages += `</table>`;
+            } else if (isTrueFact) {
+              detailPages += `<p>No materialities provided.</p>`;
+            } else {
+              detailPages += `<p>(Not applicable, fact declared false.)</p>`;
+            }
+            // Page-break after each fact
+            detailPages += `<div style="page-break-after: always;"></div>`;
+          });
+        });
+    
+        // Put everything together
+        let content = `
+          <html>
+            <head>
+              <meta charset="UTF-8" />
+              <title>${escapeHtml(fileName)}</title>
+            </head>
+            <body>
+              ${coverPage}
+              ${tablePage}
+              ${detailPages}
+            </body>
+          </html>
+        `;
+    
+        // Open a new tab, write content, set doc title for default PDF filename
+        let newWin = window.open("", "_blank");
+        newWin.document.write(content);
+        newWin.document.close();
+        newWin.document.title = fileName;
+        newWin.focus();
+        newWin.print();
+        newWin.close();
     });
 
     function renderHistory() {
