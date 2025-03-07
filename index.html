@@ -920,7 +920,7 @@
     });
 
     function showResult(forceLastDot = false) {
-      // Final calculation of veracity color
+      // Final calculation of credibility color
       let colorClass = "bg-red";
       if (verifiedPct > 90) {
         colorClass = "bg-green";
@@ -972,27 +972,27 @@
             .join(" ");
         }
     
-        // 2) Compute the average veracity across all statements
+        // 2) Compute the average credibility across all statements
         let totalCount = savedStatements.length;
         if (totalCount === 0) {
           alert("No statements to export.");
           return;
         }
-        let sumVeracity = 0;
+        let sumCredibility = 0;
         savedStatements.forEach(s => {
-          sumVeracity += s.verifiedPct;
+          sumCredibility += s.verifiedPct;
         });
-        let avgVeracity = Math.round(sumVeracity / totalCount);
+        let avgCredibility = Math.round(sumCredibility / totalCount);
     
         // 3) Determine the prefix
         let prefix = "FALSE"; // default
-        if (avgVeracity === 100) {
+        if (avgCredibility === 100) {
           prefix = "PROVEN";
-        } else if (avgVeracity > 50) {
+        } else if (avgCredibility > 50) {
           prefix = "RATHER_PROVEN";
-        } else if (avgVeracity == 50) {
+        } else if (avgCredibility == 50) {
           prefix = "HALF_PROVEN_UNPROVEN";
-        } else if (avgVeracity === 0) {
+        } else if (avgCredibility === 0) {
           prefix = "UNPROVEN";
         } else {
           prefix = "RATHER_UNPROVEN";
@@ -1034,26 +1034,26 @@
             <table style="margin-top:50px; border-collapse: collapse; margin-left:auto; margin-right:auto;">
               <tr>
                 <th style="border:1px solid #ccc; padding:8px;">Statement</th>
-                <th style="border:1px solid #ccc; padding:8px;">Veracity (%)</th>
+                <th style="border:1px solid #ccc; padding:8px;">Credibility (%)</th>
                 <th style="border:1px solid #ccc; padding:8px;">Proofs</th>
               </tr>
         `;
         // Build each row with anchor link
         savedStatements.forEach((s, sIndex) => {
-          const veracity = s.verifiedPct;
+          const credibility = s.verifiedPct;
           const totalProofsCount = (s.factsProofs || []).reduce((acc, arr) => acc + (arr ? arr.length : 0), 0);
     
           // Simple color classification for table row
           let rowColor = "lightcoral"; // red by default
-          if (veracity > 90) rowColor = "lightgreen";
-          else if (veracity > 50) rowColor = "#FFDAB9";
+          if (credibility > 90) rowColor = "lightgreen";
+          else if (credibility > 50) rowColor = "#FFDAB9";
     
           tablePage += `
             <tr style="background-color:${rowColor};">
               <td style="border:1px solid #ccc; padding:8px;">
                 <a href="#statement-${sIndex}">${escapeHtml(s.statement)}</a>
               </td>
-              <td style="border:1px solid #ccc; padding:8px;">${veracity}</td>
+              <td style="border:1px solid #ccc; padding:8px;">${credibility}</td>
               <td style="border:1px solid #ccc; padding:8px;">${totalProofsCount}</td>
             </tr>
           `;
@@ -1136,17 +1136,17 @@
 
       // Calculation of a “consolidated result” just for displaying the footer
       let totalCount = savedStatements.length;
-      let sumVeracity = 0;
+      let sumCredibility = 0;
       savedStatements.forEach(s => {
-        sumVeracity += s.verifiedPct;
+        sumCredibility += s.verifiedPct;
       });
-      let avgVeracity = totalCount > 0 ? Math.round(sumVeracity / totalCount) : 0;
+      let avgCredibility = totalCount > 0 ? Math.round(sumCredibility / totalCount) : 0;
 
       let consolidatedColor = "bg-red";
-      if (avgVeracity > 90) consolidatedColor = "bg-green";
-      else if (avgVeracity > 50) consolidatedColor = "bg-orange";
+      if (avgCredibility > 90) consolidatedColor = "bg-green";
+      else if (avgCredibility > 50) consolidatedColor = "bg-orange";
 
-      let lineText = `Consolidated veracity: ${avgVeracity}%`;
+      let lineText = `Consolidated credibility: ${avgCredibility}%`;
 
       // We go through each statement
       savedStatements.forEach(s => {
@@ -1160,8 +1160,8 @@
 
         let labelDiv = document.createElement("div");
         labelDiv.className = "history-label";
-        let veracityLabel = s.verifiedPct + "% proven";
-        labelDiv.textContent = s.statement + " : " + veracityLabel;
+        let credibilityLabel = s.verifiedPct + "% proven";
+        labelDiv.textContent = s.statement + " : " + credibilityLabel;
 
         let btnsDiv = document.createElement("div");
         btnsDiv.className = "history-item-buttons";
