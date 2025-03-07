@@ -6,6 +6,8 @@ An automated fact checker that helps break down any statement into concrete fact
 
 ✅ You may still access the service via : [https://guillaumefe.github.io/factcheck](https://guillaumefe.github.io/factcheck/).
 
+✅ Alternatively you should be able to use it via [Google Translate](https://factcheck-run-place.translate.goog/?_x_tr_sch=http&_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=fr&_x_tr_pto=wapp)
+
 ## Features
 
 **Multi-Step Wizard**  
