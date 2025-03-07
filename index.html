@@ -383,7 +383,7 @@
 <body>
   <div class="main-content">
     <div class="container">
-      <h1>FactCheck</h1>
+      <h1 id="factcheck-title" style="cursor: pointer;">FactCheck</h1>
       <div id="progress-bar">
         <div class="progress-dot active"></div>
         <div class="progress-dot"></div>
@@ -1302,6 +1302,11 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
     }
+    
+    // Returns to the beginning of the process
+    document.getElementById("factcheck-title").addEventListener("click", () => {
+      goToStep(1);
+    });
 
   </script>
 </body>
