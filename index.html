@@ -987,15 +987,15 @@
         // 3) Determine the prefix
         let prefix = "FALSE"; // default
         if (avgVeracity === 100) {
-          prefix = "TRUE";
+          prefix = "PROVEN";
         } else if (avgVeracity > 50) {
-          prefix = "RATHER_TRUE";
+          prefix = "RATHER_PROVEN";
         } else if (avgVeracity == 50) {
-          prefix = "HALF_TRUE_FALSE";
+          prefix = "HALF_PROVEN_UNPROVEN";
         } else if (avgVeracity === 0) {
-          prefix = "FALSE";
+          prefix = "UNPROVEN";
         } else {
-          prefix = "RATHER_FALSE";
+          prefix = "RATHER_UNPROVEN";
         }
     
         // 4) Nicely formatted date for display and file name
