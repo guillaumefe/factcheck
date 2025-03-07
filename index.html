@@ -263,7 +263,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      cursor: pointer;
     }
     .history-label {
       flex: 1;
@@ -592,6 +591,12 @@
       let getAll = store.getAll();
       getAll.onsuccess = function(e) {
         savedStatements = e.target.result || [];
+        // Recalcule autoIncrementID pour qu'il soit supérieur à tous les ID existants
+        let maxId = 0;
+        savedStatements.forEach(s => {
+          if (s.id > maxId) maxId = s.id;
+        });
+        autoIncrementID = maxId + 1;
         renderHistory();
       };
     }
@@ -1166,12 +1171,47 @@
 
         let btnsDiv = document.createElement("div");
         btnsDiv.className = "history-item-buttons";
-
+        
+        // --- Edit button ---
+        // On crée le bouton "Edit"
+        let editBtn = document.createElement("button");
+        editBtn.className = "delete-button"; // même style
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", (e) => {
+          loadStatementForEdit(s);
+        });
+        btnsDiv.appendChild(editBtn);
+        
+        // --- Clone button ---
+        let cloneBtn = document.createElement("button");
+        cloneBtn.className = "delete-button"; // même style que delete
+        cloneBtn.textContent = "Clone";
+        cloneBtn.addEventListener("click", (e) => {
+          // If an analysis is in progress, confirmation is requested to reset it.
+          if (statementInput.value.trim() && !confirm("Reset current fact check?")) {
+            return;
+          }
+          
+          resetAllData();
+          statement = s.statement;
+          facts = [...s.facts];
+          factsMateriality = new Array(facts.length).fill(null);
+          factsProofs = facts.map(() => []);
+        
+          // Update interface
+          statementInput.value = statement;
+          renderFacts();
+          statementText.textContent = "Statement: " + statement;
+          // Return to the first step to continue the new analysis
+          goToStep(1);
+        });
+        btnsDiv.appendChild(cloneBtn);
+        
+        // --- Delete button ---
         let deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-button";
         deleteBtn.textContent = "Delete";
         deleteBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
           savedStatements = savedStatements.filter(x => x.id !== s.id);
           deleteFromDB(s.id);
           renderHistory();
@@ -1180,11 +1220,6 @@
         btnsDiv.appendChild(deleteBtn);
         item.appendChild(labelDiv);
         item.appendChild(btnsDiv);
-
-        // When clicked to modify
-        item.addEventListener("click", () => {
-          loadStatementForEdit(s);
-        });
 
         historyList.appendChild(item);
       });
