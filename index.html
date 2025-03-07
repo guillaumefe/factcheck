@@ -396,6 +396,7 @@
       <div id="step1" class="step active">
         <div id="edit-mode-message" style="display:none; margin-top:8px; color:#b91c1c; font-weight:bold;">
           Currently editing an existing statement...
+          <span id="abort-edit" style="text-decoration: underline; cursor: pointer;">(Abort)</span>
         </div>
         <form id="form-step1">
           <div class="field">
@@ -1305,6 +1306,12 @@
     
     // Returns to the beginning of the process
     document.getElementById("factcheck-title").addEventListener("click", () => {
+      goToStep(1);
+    });
+
+    // Allows you to cancel the edit
+    document.getElementById("abort-edit").addEventListener("click", () => {
+      resetAllData();
       goToStep(1);
     });
 
