@@ -1308,7 +1308,7 @@
     document.getElementById("factcheck-title").addEventListener("click", () => {
       if (currentStep === 5) {
         resetAllData();
-      } else if (window.confirm("Reset current data?")) {
+      } else if (statementInput.value && window.confirm("Reset current data?")) {
           resetAllData();
       }
       goToStep(1);
