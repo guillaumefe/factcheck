@@ -16,9 +16,9 @@ An automated fact checker that helps break down any statement into concrete fact
      - **Green** if > 90%
 
 **History & Editing**  
-  - Each completed evaluation is added to the History panel.  
-  - You can click any history item to reload and edit it.  
-  - Edits overwrite the original entry, preserving the same ID.
+  - Each completed evaluation is added to the History panel. 
+  - You can edit and entry, preserving the same ID.
+  - You can clone an entry, with a new unique ID.
 
 **Import/Export JSON**  
   - **Export**: Save all evaluations as a single JSON file.  
