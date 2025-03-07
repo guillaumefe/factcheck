@@ -1078,11 +1078,14 @@
                   <tr><th style="border:1px solid #ccc; padding:8px;">Materialities / Proofs</th></tr>
               `;
               proofsArr[fIndex].forEach(pr => {
-                detailPages += `<tr>
-                  <td style="border:1px solid #ccc; padding:8px;">
-                    ${escapeHtml(pr)}
-                  </td>
-                </tr>`;
+                  // Transform any URL into <a href="..." target="_blank">LIEN</a>
+                  const linkRegex = /(https?:\/\/[^\s]+)/g;
+                  const proofWithLinks = escapeHtml(pr).replace(linkRegex, '<a href="$&" target="_blank">LINK</a>');
+                  detailPages += `<tr>
+                    <td style="border:1px solid #ccc; padding:8px;">
+                      ${proofWithLinks}
+                    </td>
+                  </tr>`;
               });
               detailPages += `</table>`;
             } else if (isTrueFact) {
