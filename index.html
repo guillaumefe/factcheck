@@ -927,7 +927,7 @@
       } else if (verifiedPct > 50) {
         colorClass = "bg-orange";
       }
-      resultBox.textContent = `${statement} : ${verifiedPct}% true`;
+      resultBox.textContent = `${statement} : ${verifiedPct}% proven`;
       resultBox.className = `result-box ${colorClass}`;
       
       if (forceLastDot) {
@@ -1160,7 +1160,7 @@
 
         let labelDiv = document.createElement("div");
         labelDiv.className = "history-label";
-        let veracityLabel = s.verifiedPct + "% true";
+        let veracityLabel = s.verifiedPct + "% proven";
         labelDiv.textContent = s.statement + " : " + veracityLabel;
 
         let btnsDiv = document.createElement("div");
