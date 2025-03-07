@@ -2,7 +2,7 @@
 
 An automated fact checker that helps break down any statement into concrete facts, assess their scientific veracity, and optionally attach proofs/references.
 
-⚠️ If the domain [https://factcheck.run.place](https://factcheck.run.place/) is blocked on your device or network
+⚠️ If the domain [http://factcheck.run.place](http://factcheck.run.place/) is blocked on your device or network
 
 ✅ You can still access the service via : [https://guillaumefe.github.io/factcheck](https://guillaumefe.github.io/factcheck/).
 
