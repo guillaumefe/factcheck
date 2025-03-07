@@ -156,64 +156,60 @@
     .no-button:hover {
       background-color: #fda4af;
     }
-    .moral-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .additional-proof-container {
       margin-top: 16px;
-      padding-left: 0;
+      border-top: 1px solid #ddd;
+      padding-top: 16px;
     }
-    .moral-item {
-      background-color: #fafafa;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .moral-label-and-check {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-    }
-    .remove-moral-item {
-      background: none;
-      border: none;
-      color: #b91c1c;
+    .proof-fact-title {
       font-weight: bold;
-      cursor: pointer;
-      margin-left: 16px;
+      margin-bottom: 8px;
     }
-    .add-moral-container {
+    .proof-list {
+      margin-top: 8px;
+      padding-left: 0;
+      list-style-type: none;
+    }
+    .proof-list-item {
+      padding: 8px;
+      margin: 6px 0;
+      border-left: 4px solid #cbd5e1;
+      background-color: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .proof-input-container {
       display: flex;
       align-items: center;
-      margin-top: 12px;
+      margin-top: 8px;
     }
-    .add-moral-input {
+    .proof-input {
       flex: 1;
-      padding: 10px;
+      padding: 8px;
       margin-right: 8px;
       border: 2px solid #ddd;
       border-radius: 6px;
     }
-    .add-moral-button {
-      padding: 10px 20px;
+    .proof-add-button {
+      padding: 8px 16px;
       border: none;
       border-radius: 6px;
       background-color: #e9d5ff;
       cursor: pointer;
       font-weight: bold;
       transition: background-color 0.3s ease;
-      height: 100%;
     }
-    .add-moral-button:hover {
+    .proof-add-button:hover {
       background-color: #bfdbfe;
     }
-    .moral-item input[type="checkbox"] {
-      transform: scale(1.2);
-      margin-right: 8px;
+    .remove-proof {
+      background: none;
+      border: none;
+      color: #b91c1c;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 8px;
     }
     .buttons {
       display: flex;
@@ -316,6 +312,34 @@
     #export-pdf:hover {
       background-color: #bfdbfe;
     }
+    #export-json {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #eee;
+      transition: background-color 0.3s ease;
+      margin-left: 16px;
+    }
+    #export-json:hover {
+      background-color: #bfdbfe;
+    }
+    #import-json {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #eee;
+      transition: background-color 0.3s ease;
+      margin-left: 16px;
+    }
+    #import-json:hover {
+      background-color: #bfdbfe;
+    }
     .history-footer {
       margin-top: 16px;
       padding: 12px;
@@ -366,9 +390,9 @@
         <div class="progress-dot"></div>
         <div class="progress-dot"></div>
         <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
       </div>
 
+      <!-- Step 1: Enter Statement -->
       <div id="step1" class="step active">
         <form id="form-step1">
           <div class="field">
@@ -386,8 +410,16 @@
             <button type="submit" id="next1">Next</button>
           </div>
         </form>
+
+        <!-- NEW BLOCK: Import/Export JSON -->
+        <div style="margin-top:30px; border-top:1px solid #ddd; padding-top:20px;">
+          <button id="export-json">Export Memory as JSON</button>
+          <button id="import-json">Import Memory from JSON</button>
+        </div>
+        <!-- End NEW BLOCK -->
       </div>
 
+      <!-- Step 2: List Facts -->
       <div id="step2" class="step">
         <p id="statement-text" style="font-weight:bold;"></p>
         <form id="form-step2">
@@ -411,6 +443,7 @@
         </form>
       </div>
 
+      <!-- Step 3: Materiality (Yes/No) for each Fact -->
       <div id="step3" class="step">
         <p>For each fact, indicate if there is scientific materiality:</p>
         <div id="materiality-container"></div>
@@ -420,50 +453,29 @@
         </div>
       </div>
 
+      <!-- Step 4: Optional Materialities for each Fact -->
       <div id="step4" class="step">
-        <form id="form-step4">
-          <p>Do you want to evaluate the moral aspect of this statement?</p>
-          <div class="field">
-            <label><input type="radio" name="moralChoice" value="yes" required/> Yes</label>
-            <label><input type="radio" name="moralChoice" value="no"/> No</label>
-          </div>
-          <div class="buttons">
-            <button type="button" id="prev4">Previous</button>
-            <button type="submit" id="next4">Next</button>
-          </div>
-        </form>
+        <p>Optionally, add proofs/materialities for facts declared <em>true</em>:</p>
+        <div id="additional-proof-wrapper"></div>
+        <div class="buttons">
+          <button type="button" id="prev4">Previous</button>
+          <button type="button" id="next4">Next</button>
+        </div>
       </div>
 
+      <!-- Step 5: Final Result -->
       <div id="step5" class="step">
-        <form id="form-step5">
-          <p>Please check the applicable criteria:</p>
-          <div class="moral-list" id="moral-list-container"></div>
-          <div class="add-moral-container">
-            <input
-              type="text"
-              id="add-moral-input"
-              class="add-moral-input"
-              placeholder="Add a new moral criterion"
-            />
-            <button type="button" class="add-moral-button" id="add-moral-btn">Add</button>
-          </div>
-          <div class="buttons">
-            <button type="button" id="prev5">Previous</button>
-            <button type="submit" id="next5">Next</button>
-          </div>
-        </form>
-      </div>
-
-      <div id="step6" class="step">
         <div id="result-box" class="result-box"></div>
         <div class="buttons">
-          <button type="button" id="prev6">Previous</button>
+          <button type="button" id="prev5">Previous</button>
           <button type="button" id="restart">Try again</button>
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- History Container -->
   <div id="history-container">
     <h2>History of Evaluations</h2>
     <div id="history-list"></div>
@@ -473,65 +485,78 @@
   </div>
 
   <script>
+    // ---------------------------
+    // Global variables
+    // ---------------------------
     let currentStep = 1;
-    let moralEvaluationWanted = false;
     let statement = "";
     let facts = [];
+    // factsMateriality[index] = boolean (true/false) ou null si pas encore choisi
     let factsMateriality = [];
-    let moralItems = [
-      "Has no unfair, inequitable, or disrespectful effect",
-      "Respects human rights",
-      "Is not morally forbidden",
-      "Does not falsely diminish the moral value of another person",
-      "Does not intentionally inflict harm or wrongdoing"
-    ];
-    let moralChecks = [];
-    let isStatementTrue = false;
-    let isStatementGood = false;
+    // factsProofs[index] = tableau de chaînes (les matérialités saisies)
+    let factsProofs = [];
+    
     let verifiedCount = 0;
-    let verifiedPct = 0;
-    let moralCount = 0;
-    let moralPct = 0;
-    let savedStatements = [];
-    let autoIncrementID = 1;
-    let currentlyEditingID = null;
+    let verifiedPct = 0; // de 0 à 100
+    let isStatementTrue = false;
+
+    // IndexedDB
     let db = null;
 
+    // Historique en mémoire
+    let savedStatements = [];
+    // Générateur d’ID auto-incrémenté
+    let autoIncrementID = 1;
+    // ID de la fiche en cours d’édition (null = création)
+    let currentlyEditingID = null;
+
+    // ---------------------------
+    // DOM Elements
+    // ---------------------------
     const steps = {
       1: document.getElementById("step1"),
       2: document.getElementById("step2"),
       3: document.getElementById("step3"),
       4: document.getElementById("step4"),
-      5: document.getElementById("step5"),
-      6: document.getElementById("step6")
+      5: document.getElementById("step5")
     };
     const progressDots = document.querySelectorAll("#progress-bar .progress-dot");
+    
     const formStep1 = document.getElementById("form-step1");
     const statementInput = document.getElementById("statement-input");
+
     const formStep2 = document.getElementById("form-step2");
     const factInput = document.getElementById("fact-input");
     const addFactBtn = document.getElementById("add-fact-btn");
     const factsList = document.getElementById("facts-list");
     const statementText = document.getElementById("statement-text");
+
     const materialityContainer = document.getElementById("materiality-container");
-    const formStep4 = document.getElementById("form-step4");
-    const formStep5 = document.getElementById("form-step5");
-    const moralListContainer = document.getElementById("moral-list-container");
-    const addMoralInput = document.getElementById("add-moral-input");
-    const addMoralBtn = document.getElementById("add-moral-btn");
+
+    const additionalProofWrapper = document.getElementById("additional-proof-wrapper");
+
     const resultBox = document.getElementById("result-box");
+
     const historyContainer = document.getElementById("history-container");
     const historyList = document.getElementById("history-list");
     const historyFooter = document.getElementById("history-footer");
     const clearAllBtn = document.getElementById("clear-all");
     const exportPdfBtn = document.getElementById("export-pdf");
 
+    // NEW CODE for Import/Export JSON
+    const exportJsonBtn = document.getElementById("export-json");
+    const importJsonBtn = document.getElementById("import-json");
+
+    // ---------------------------
+    // Step navigation
+    // ---------------------------
     function goToStep(n) {
       steps[currentStep].classList.remove("active");
       currentStep = n;
       steps[currentStep].classList.add("active");
       updateProgressBar();
     }
+
     function updateProgressBar() {
       progressDots.forEach((dot, i) => {
         if (i+1 === currentStep) dot.classList.add("active");
@@ -539,7 +564,9 @@
       });
     }
 
+    // ---------------------------
     // IndexedDB init
+    // ---------------------------
     let request = window.indexedDB.open("StatementDB", 1);
     request.onerror = function() {
       console.error("IndexedDB error");
@@ -565,18 +592,15 @@
       };
     }
 
-    function saveToDB(obj) {
-      let txn = db.transaction(["statements"], "readwrite");
-      let store = txn.objectStore("statements");
-      store.put(obj);
-    }
-
     function deleteFromDB(id) {
       let txn = db.transaction(["statements"], "readwrite");
       let store = txn.objectStore("statements");
       store.delete(id);
     }
 
+    // ---------------------------
+    // Step 1
+    // ---------------------------
     formStep1.addEventListener("submit", (e) => {
       e.preventDefault();
       if (!statementInput.value.trim()) return;
@@ -586,6 +610,73 @@
     });
     document.getElementById("prev1").disabled = true;
 
+    // NEW CODE: Export JSON
+    exportJsonBtn.addEventListener("click", () => {
+      // On sérialise tout l'historique
+      let data = JSON.stringify(savedStatements, null, 2);
+      // On crée un Blob "text/json"
+      let blob = new Blob([data], {type: "application/json"});
+      // URL temporaire
+      let url = URL.createObjectURL(blob);
+
+      // Création d'un lien "invisible" pour forcer le téléchargement
+      let a = document.createElement("a");
+      a.href = url;
+      a.download = "my_app_memory.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // NEW CODE: Import JSON
+    importJsonBtn.addEventListener("click", () => {
+      let fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'application/json';
+      fileInput.onchange = (evt) => {
+        let file = evt.target.files[0];
+        if (!file) return; // l'utilisateur a fermé sans sélectionner de fichier
+
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          let content = e.target.result;
+          try {
+            let data = JSON.parse(content);
+
+            // On suppose que "data" est le tableau savedStatements
+            if (!Array.isArray(data)) {
+              alert("Invalid JSON format.");
+              return;
+            }
+            // On écrase la base existante
+            let txn = db.transaction(["statements"], "readwrite");
+            let store = txn.objectStore("statements");
+            let clearReq = store.clear();
+            clearReq.onsuccess = function() {
+              // On enregistre chaque entrée
+              data.forEach(item => {
+                store.put(item);
+              });
+              // On met aussi à jour la variable en mémoire
+              savedStatements = data;
+              renderHistory();
+              resetAllData();
+              alert("Import done. History reloaded.");
+            };
+          } catch(err) {
+            console.error(err);
+            alert("Error reading JSON file");
+          }
+        };
+        reader.readAsText(file);
+      };
+      fileInput.click();
+    });
+
+    // ---------------------------
+    // Step 2
+    // ---------------------------
     addFactBtn.addEventListener("click", addFact);
     factInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -593,14 +684,19 @@
         addFact();
       }
     });
+
     function addFact() {
       let val = factInput.value.trim();
       if (!val) return;
       facts.push(val);
+      // On initialise la valeur de factsMateriality et factsProofs pour ce nouveau fait
+      factsMateriality.push(null);
+      factsProofs.push([]);
       factInput.value = "";
       factInput.focus();
       renderFacts();
     }
+
     function renderFacts() {
       factsList.innerHTML = "";
       facts.forEach((f, index) => {
@@ -612,12 +708,14 @@
         btn.addEventListener("click", () => {
           facts.splice(index, 1);
           factsMateriality.splice(index, 1);
+          factsProofs.splice(index, 1);
           renderFacts();
         });
         li.appendChild(btn);
         factsList.appendChild(li);
       });
     }
+
     formStep2.addEventListener("submit", (e) => {
       e.preventDefault();
       if (factInput.value.trim()) addFact();
@@ -625,32 +723,44 @@
       goToStep(3);
       buildMaterialityList();
     });
+
     document.getElementById("prev2").addEventListener("click", () => {
       goToStep(1);
     });
 
+    // ---------------------------
+    // Step 3
+    // ---------------------------
     document.getElementById("prev3").addEventListener("click", () => goToStep(2));
+
     document.getElementById("next3").addEventListener("click", () => {
       if (facts.length === 0) return;
-      if (factsMateriality.length < facts.length || factsMateriality.includes(null)) return;
+      // Vérif si tout est coché (true/false)
+      if (factsMateriality.includes(null)) {
+        alert("Please select Yes/No for all facts before proceeding.");
+        return;
+      }
+      // Calcul du score
       verifiedCount = factsMateriality.filter(v => v === true).length;
       verifiedPct = Math.round((verifiedCount / facts.length) * 100);
       isStatementTrue = (verifiedCount === facts.length);
       goToStep(4);
+      buildProofsInterface();
     });
+
     function buildMaterialityList() {
       materialityContainer.innerHTML = "";
       facts.forEach((f, index) => {
-        if (factsMateriality[index] === undefined) {
-          factsMateriality[index] = null;
-        }
         let item = document.createElement("div");
         item.className = "materiality-item";
+
         let label = document.createElement("div");
         label.className = "materiality-label";
         label.textContent = f;
+
         let btns = document.createElement("div");
         btns.className = "materiality-buttons";
+
         let yesBtn = document.createElement("button");
         yesBtn.type = "button";
         yesBtn.textContent = "Yes";
@@ -659,6 +769,7 @@
           factsMateriality[index] = true;
           item.style.backgroundColor = "#bbf7d0";
         });
+
         let noBtn = document.createElement("button");
         noBtn.type = "button";
         noBtn.textContent = "No";
@@ -667,101 +778,121 @@
           factsMateriality[index] = false;
           item.style.backgroundColor = "#fecdd3";
         });
+
+        // Couleur initiale si déjà choisi
         if (factsMateriality[index] === true) {
           item.style.backgroundColor = "#bbf7d0";
         } else if (factsMateriality[index] === false) {
           item.style.backgroundColor = "#fecdd3";
         }
+
         btns.appendChild(yesBtn);
         btns.appendChild(noBtn);
+
         item.appendChild(label);
         item.appendChild(btns);
+
         materialityContainer.appendChild(item);
       });
     }
 
-    formStep4.addEventListener("submit", (e) => {
-      e.preventDefault();
-      let choice = document.querySelector('input[name="moralChoice"]:checked');
-      if (!choice) return;
-      moralEvaluationWanted = (choice.value === "yes");
-      if (moralEvaluationWanted) {
-        goToStep(5);
-      } else {
-        goToStep(6);
-        showResult(true);
-        saveCurrentStatement();
-      }
+    // ---------------------------
+    // Step 4: Optional proofs for each Fact (only if fact = true)
+    // ---------------------------
+    document.getElementById("prev4").addEventListener("click", () => {
+      goToStep(3);
     });
-    document.getElementById("prev4").addEventListener("click", () => goToStep(3));
-
-    addMoralBtn.addEventListener("click", addMoralItem);
-    function addMoralItem() {
-      let val = addMoralInput.value.trim();
-      if (!val) return;
-      moralItems.push(val);
-      addMoralInput.value = "";
-      addMoralInput.focus();
-      renderMoralItems();
-    }
-    function removeMoralItem(index) {
-      moralItems.splice(index, 1);
-      if (moralChecks[index] !== undefined) {
-        moralChecks.splice(index, 1);
-      }
-      renderMoralItems();
-    }
-    function renderMoralItems() {
-      moralListContainer.innerHTML = "";
-      if (moralChecks.length < moralItems.length) {
-        for (let i = moralChecks.length; i < moralItems.length; i++) {
-          moralChecks[i] = false;
-        }
-      }
-      moralItems.forEach((itemLabel, idx) => {
-        let itemDiv = document.createElement("div");
-        itemDiv.className = "moral-item";
-        let labelAndCheck = document.createElement("div");
-        labelAndCheck.className = "moral-label-and-check";
-        let checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = moralChecks[idx];
-        checkbox.addEventListener("change", () => {
-          moralChecks[idx] = checkbox.checked;
-        });
-        let label = document.createElement("span");
-        label.textContent = itemLabel;
-        labelAndCheck.appendChild(checkbox);
-        labelAndCheck.appendChild(label);
-        let removeBtn = document.createElement("button");
-        removeBtn.className = "remove-moral-item";
-        removeBtn.textContent = "✕";
-        removeBtn.addEventListener("click", () => removeMoralItem(idx));
-        itemDiv.appendChild(labelAndCheck);
-        itemDiv.appendChild(removeBtn);
-        moralListContainer.appendChild(itemDiv);
-      });
-    }
-    formStep5.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!moralEvaluationWanted) return;
-      moralCount = moralChecks.filter(Boolean).length;
-      moralPct = moralItems.length > 0 ? Math.round((moralCount / moralItems.length) * 100) : 0;
-      isStatementGood = (moralCount === moralItems.length && moralItems.length>0);
-      goToStep(6);
+    document.getElementById("next4").addEventListener("click", () => {
+      // On passe directement à la conclusion
+      goToStep(5);
       showResult(true);
       saveCurrentStatement();
     });
+
+    function buildProofsInterface() {
+      additionalProofWrapper.innerHTML = "";
+      facts.forEach((fact, idx) => {
+        if (factsMateriality[idx] !== true) {
+          // Fait non vrai => on n'affiche pas la possibilité d'ajouter des proofs
+          return;
+        }
+        let container = document.createElement("div");
+        container.className = "additional-proof-container";
+
+        let title = document.createElement("div");
+        title.className = "proof-fact-title";
+        title.textContent = "Fact: " + fact;
+        container.appendChild(title);
+
+        // Liste UL des proofs
+        let ul = document.createElement("ul");
+        ul.className = "proof-list";
+        container.appendChild(ul);
+
+        // Boutons + champ
+        let inputContainer = document.createElement("div");
+        inputContainer.className = "proof-input-container";
+        let proofInput = document.createElement("input");
+        proofInput.type = "text";
+        proofInput.className = "proof-input";
+        proofInput.placeholder = "Add a proof or reference link...";
+
+        let addBtn = document.createElement("button");
+        addBtn.type = "button";
+        addBtn.className = "proof-add-button";
+        addBtn.textContent = "Add";
+        addBtn.addEventListener("click", () => {
+          let val = proofInput.value.trim();
+          if (!val) return;
+          factsProofs[idx].push(val);
+          proofInput.value = "";
+          proofInput.focus();
+          renderProofs();
+        });
+
+        proofInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addBtn.click();
+          }
+        });
+
+        inputContainer.appendChild(proofInput);
+        inputContainer.appendChild(addBtn);
+        container.appendChild(inputContainer);
+
+        // Fonction de rendu
+        function renderProofs() {
+          ul.innerHTML = "";
+          factsProofs[idx].forEach((p, pIndex) => {
+            let li = document.createElement("li");
+            li.className = "proof-list-item";
+            li.textContent = p;
+
+            let btnRemove = document.createElement("button");
+            btnRemove.className = "remove-proof";
+            btnRemove.textContent = "✕";
+            btnRemove.addEventListener("click", () => {
+              factsProofs[idx].splice(pIndex, 1);
+              renderProofs();
+            });
+
+            li.appendChild(btnRemove);
+            ul.appendChild(li);
+          });
+        }
+
+        // On lance le rendu initial
+        renderProofs();
+        additionalProofWrapper.appendChild(container);
+      });
+    }
+
+    // ---------------------------
+    // Step 5: Final result
+    // ---------------------------
     document.getElementById("prev5").addEventListener("click", () => {
       goToStep(4);
-    });
-
-    document.getElementById("prev6").addEventListener("click", () => {
-      if (!moralEvaluationWanted) {
-        goToStep(4);
-      } else {
-        goToStep(5);
-      }
     });
     document.getElementById("restart").addEventListener("click", () => {
       resetAllData();
@@ -769,32 +900,27 @@
     });
 
     function showResult(forceLastDot = false) {
-      let textResult = statement + " : ";
-      let veracityLabel = isStatementTrue ? "100% true" : (verifiedPct + "% true");
-      textResult += veracityLabel;
-      if (moralEvaluationWanted) {
-        let moralLabel = isStatementGood ? "100% good" : (moralPct + "% good");
-        textResult += " | " + moralLabel;
+      // Calcul final de veracity color
+      let colorClass = "bg-red";
+      if (verifiedPct > 90) {
+        colorClass = "bg-green";
+      } else if (verifiedPct > 50) {
+        colorClass = "bg-orange";
       }
-      resultBox.textContent = textResult;
-      let color = "lightcoral";
-      if (isStatementTrue && (!moralEvaluationWanted || isStatementGood)) {
-        color = "lightgreen";
-      } else if (
-        (isStatementTrue && !isStatementGood) ||
-        (!isStatementTrue && isStatementGood)
-      ) {
-        color = "#FFDAB9";
-      }
-      resultBox.style.backgroundColor = color;
+      resultBox.textContent = `${statement} : ${verifiedPct}% true`;
+      resultBox.className = `result-box ${colorClass}`;
+      
       if (forceLastDot) {
         progressDots.forEach(d => d.classList.remove("active"));
-        if (progressDots.length >= 6) {
-          progressDots[5].classList.add("active");
+        if (progressDots.length >= 5) {
+          progressDots[4].classList.add("active");
         }
       }
     }
 
+    // ---------------------------
+    // History management
+    // ---------------------------
     clearAllBtn.addEventListener("click", () => {
       let txn = db.transaction(["statements"], "readwrite");
       let store = txn.objectStore("statements");
@@ -806,7 +932,9 @@
         goToStep(1);
       };
     });
+
     exportPdfBtn.addEventListener("click", () => {
+      // Construction du contenu HTML à imprimer
       let content = `
         <html>
           <head>
@@ -816,6 +944,16 @@
               table { border-collapse: collapse; margin: 50px auto; }
               td, th { border: 1px solid #ccc; padding: 8px 12px; text-align: center; }
               th { background-color: #f3f4f6; }
+              .bg-red { background-color: lightcoral; }
+              .bg-orange { background-color: #FFDAB9; }
+              .bg-green { background-color: lightgreen; }
+              .page-break { page-break-after: always; }
+              .fact-title { font-weight: bold; margin: 20px 0 8px 0; }
+              .single-col-table { border-collapse: collapse; margin-bottom: 30px; width: 80%; }
+              .single-col-table td, .single-col-table th {
+                border: 1px solid #ccc;
+                padding: 8px;
+              }
             </style>
           </head>
           <body>
@@ -823,26 +961,65 @@
               <tr>
                 <th>Statement</th>
                 <th>Veracity (%)</th>
-                <th>Moral (%)</th>
+                <th>Proofs</th>
               </tr>
       `;
+      // Pour chaque statement sauvegardé, on crée une ligne
       savedStatements.forEach(s => {
-        let veracity = s.isTrue ? "100" : s.verifiedPct.toString();
-        let moral = "";
-        if (s.moralWanted) {
-          moral = s.isGood ? "100" : (s.moralPct.toString());
-        } else {
-          moral = "N/A";
-        }
+        const veracity = s.verifiedPct;
+        // On protège contre le fait que s.factsProofs peut être undefined dans d'anciens enregistrements
+        const totalProofsCount = (s.factsProofs || []).reduce((acc, arr) => acc + (arr ? arr.length : 0), 0);
+
+        let rowColorClass = "bg-red";
+        if (veracity > 90) rowColorClass = "bg-green";
+        else if (veracity > 50) rowColorClass = "bg-orange";
+
         content += `
-          <tr>
-            <td>${s.statement}</td>
+          <tr class="${rowColorClass}">
+            <td>${escapeHtml(s.statement)}</td>
             <td>${veracity}</td>
-            <td>${moral}</td>
+            <td>${totalProofsCount}</td>
           </tr>
         `;
       });
-      content += `</table></body></html>`;
+
+      content += `</table>`;
+
+      // Saut de page
+      content += `<div class="page-break"></div>`;
+
+      // Ensuite, pour chaque statement, on liste ses faits + statut (vrai/faux) + un tableau 1 colonne de proofs
+      savedStatements.forEach((s, sIndex) => {
+        content += `<div><h3>Statement: ${escapeHtml(s.statement)}</h3></div>`;
+        const factsArr = s.facts || [];
+        const matArr = s.factsMateriality || [];
+        const proofsArr = s.factsProofs || []; // fallback
+        factsArr.forEach((fact, fIndex) => {
+          let isTrueFact = matArr[fIndex];
+          let trueFalseLabel = (isTrueFact === true) ? "true" : "false";
+
+          content += `<div class="fact-title">Fact #${fIndex+1} - ${escapeHtml(fact)} (${trueFalseLabel})</div>`;
+          
+          // Construction du tableau 1 colonne pour les proofs (uniquement si fact = true)
+          if (isTrueFact === true && proofsArr[fIndex] && proofsArr[fIndex].length > 0) {
+            content += `<table class="single-col-table">`;
+            content += `<tr><th>Materialities / Proofs</th></tr>`;
+            proofsArr[fIndex].forEach(proof => {
+              content += `<tr><td>${escapeHtml(proof)}</td></tr>`;
+            });
+            content += `</table>`;
+          } else if (isTrueFact === true) {
+            content += `<p>No materialities provided.</p>`;
+          } else {
+            content += `<p>(Not applicable, fact declared false.)</p>`;
+          }
+          // Saut de page après chaque fait
+          content += `<div class="page-break"></div>`;
+        });
+      });
+
+      content += `</body></html>`;
+
       let newWin = window.open("", "_blank");
       newWin.document.write(content);
       newWin.document.close();
@@ -858,81 +1035,49 @@
       }
       historyContainer.style.display = "block";
       historyList.innerHTML = "";
-      let totalCount = savedStatements.length;
-      let sumVerifiedPct = 0;
-      let sumMoralPct = 0;
-      let moralCountInHistory = 0;
-      savedStatements.forEach(s => {
-        sumVerifiedPct += s.verifiedPct;
-        if (s.moralWanted) {
-          sumMoralPct += s.moralPct;
-          moralCountInHistory++;
-        }
-      });
-      let avgVerifiedPct = Math.round(sumVerifiedPct / totalCount);
-      let avgMoralPct = null;
-      if (moralCountInHistory > 0) {
-        avgMoralPct = Math.round(sumMoralPct / moralCountInHistory);
-      }
-      let consolidatedIsTrue = (avgVerifiedPct === 100);
-      let consolidatedIsGood = false;
-      if (avgMoralPct !== null && avgMoralPct === 100 && moralCountInHistory === totalCount) {
-        consolidatedIsGood = true;
-      }
-      let consolidatedColor = "bg-red";
-      if (consolidatedIsTrue && (!avgMoralPct || consolidatedIsGood)) {
-        consolidatedColor = "bg-green";
-      } else if (
-        (consolidatedIsTrue && !consolidatedIsGood) ||
-        (!consolidatedIsTrue && consolidatedIsGood)
-      ) {
-        consolidatedColor = "bg-orange";
-      }
-      let lineText = "Consolidated result: ";
-      if (consolidatedIsTrue) {
-        lineText += "100% true";
-      } else {
-        lineText += avgVerifiedPct + "% true";
-      }
-      if (avgMoralPct !== null) {
-        if (consolidatedIsGood) {
-          lineText += " | 100% good";
-        } else {
-          lineText += " | " + avgMoralPct + "% good";
-        }
-      }
 
+      // Calcul d'un "résultat consolidé" juste pour l'affichage du footer
+      let totalCount = savedStatements.length;
+      let sumVeracity = 0;
+      savedStatements.forEach(s => {
+        sumVeracity += s.verifiedPct;
+      });
+      let avgVeracity = totalCount > 0 ? Math.round(sumVeracity / totalCount) : 0;
+
+      let consolidatedColor = "bg-red";
+      if (avgVeracity > 90) consolidatedColor = "bg-green";
+      else if (avgVeracity > 50) consolidatedColor = "bg-orange";
+
+      let lineText = `Consolidated veracity: ${avgVeracity}%`;
+
+      // On parcourt chaque statement
       savedStatements.forEach(s => {
         let item = document.createElement("div");
         item.className = "history-item";
+
         let colorClass = "bg-red";
-        if (s.isTrue && (!s.moralWanted || s.isGood)) {
-          colorClass = "bg-green";
-        } else if ((s.isTrue && !s.isGood) || (!s.isTrue && s.isGood)) {
-          colorClass = "bg-orange";
-        }
+        if (s.verifiedPct > 90) colorClass = "bg-green";
+        else if (s.verifiedPct > 50) colorClass = "bg-orange";
         item.classList.add(colorClass);
+
         let labelDiv = document.createElement("div");
         labelDiv.className = "history-label";
-        let veracityLabel = s.isTrue ? "100% true" : (s.verifiedPct + "% true");
-        let moralLabel = "";
-        if (s.moralWanted) {
-          moralLabel = s.isGood ? " | 100% good" : " | " + s.moralPct + "% good";
-        }
-        labelDiv.textContent = s.statement + " : " + veracityLabel + moralLabel;
+        let veracityLabel = s.verifiedPct + "% true";
+        labelDiv.textContent = s.statement + " : " + veracityLabel;
+
         let btnsDiv = document.createElement("div");
         btnsDiv.className = "history-item-buttons";
+
         let deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-button";
         deleteBtn.textContent = "Delete";
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           savedStatements = savedStatements.filter(x => x.id !== s.id);
-          let txn = db.transaction(["statements"], "readwrite");
-          let store = txn.objectStore("statements");
-          store.delete(s.id);
+          deleteFromDB(s.id);
           renderHistory();
         });
+
         btnsDiv.appendChild(deleteBtn);
         item.appendChild(labelDiv);
         item.appendChild(btnsDiv);
@@ -944,6 +1089,7 @@
 
         historyList.appendChild(item);
       });
+
       historyFooter.className = "history-footer " + consolidatedColor;
       historyFooter.textContent = lineText;
     }
@@ -960,13 +1106,9 @@
         statement: statement,
         facts: [...facts],
         factsMateriality: [...factsMateriality],
-        moralItems: [...moralItems],
-        moralChecks: [...moralChecks],
-        moralWanted: moralEvaluationWanted,
+        factsProofs: JSON.parse(JSON.stringify(factsProofs)), // copie profonde
         verifiedPct: verifiedPct,
-        moralPct: moralEvaluationWanted ? moralPct : null,
-        isTrue: isStatementTrue,
-        isGood: isStatementGood
+        isTrue: isStatementTrue
       };
     
       // On supprime l’ancienne version s’il y en avait une avec le même ID
@@ -984,7 +1126,6 @@
       renderHistory();
     }
 
-
     function loadStatementForEdit(s) {
       // On réinitialise tout
       resetAllData();
@@ -996,80 +1137,68 @@
       statement = s.statement;
       facts = [...s.facts];
       factsMateriality = [...s.factsMateriality];
-      moralItems = [...s.moralItems];
-      moralChecks = [...s.moralChecks];
-      moralEvaluationWanted = s.moralWanted;
+      factsProofs = s.factsProofs ? s.factsProofs.map(arr => [...arr]) : [];
       verifiedPct = s.verifiedPct;
-      moralPct = s.moralPct;
       isStatementTrue = s.isTrue;
-      isStatementGood = s.isGood;
 
       // On rafraîchit l'écran
       statementInput.value = statement;
       statementText.textContent = "Statement: " + statement;
       renderFacts();
       buildMaterialityList();
+      buildProofsInterface();
 
-      const rad = document.querySelectorAll('input[name="moralChoice"]');
-      rad.forEach(r => {
-        if (r.value === "yes") r.checked = moralEvaluationWanted;
-        if (r.value === "no") r.checked = !moralEvaluationWanted;
-      });
-
-      renderMoralItems();
-
-      // On revient à l'étape 1 seulement
+      // On revient à l'étape 1
       goToStep(1);
     }
 
     function resetAllData() {
       // On enlève la classe .active à toutes les étapes
-      for (let i = 1; i <= 6; i++) {
+      for (let i = 1; i <= 5; i++) {
         steps[i].classList.remove("active");
       }
-    
       // Ensuite on réinitialise notre compteur d’étape
       currentStep = 1;
       steps[currentStep].classList.add("active");
-    
-      // Et on remet tout le reste à zéro comme avant
-      moralEvaluationWanted = false;
+
       statement = "";
       facts = [];
       factsMateriality = [];
-      moralChecks = [];
-      isStatementTrue = false;
-      isStatementGood = false;
+      factsProofs = [];
+      
       verifiedCount = 0;
       verifiedPct = 0;
-      moralCount = 0;
-      moralPct = 0;
+      isStatementTrue = false;
+
       currentlyEditingID = null;
-    
+
       statementInput.value = "";
       statementText.textContent = "";
       factInput.value = "";
       factsList.innerHTML = "";
       materialityContainer.innerHTML = "";
-      document
-        .querySelectorAll('input[name="moralChoice"]')
-        .forEach((r) => (r.checked = false));
-      renderMoralItems();
+      additionalProofWrapper.innerHTML = "";
+
       resultBox.textContent = "";
-      resultBox.style.backgroundColor = "";
-    
-      // Enfin, on met à jour la barre de progression
+      resultBox.className = "result-box";
+
+      // Progress bar
       progressDots.forEach((d) => d.classList.remove("active"));
       progressDots[0].classList.add("active");
     }
 
-    
-    
-    function initMoralChecks() {
-      moralChecks = moralItems.map(() => false);
+    // ---------------------------
+    // Divers utilitaires
+    // ---------------------------
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
-    initMoralChecks();
-    renderMoralItems();
+
   </script>
 </body>
 </html>
