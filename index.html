@@ -491,9 +491,9 @@
     let currentStep = 1;
     let statement = "";
     let facts = [];
-    // factsMateriality[index] = boolean (true/false) ou null si pas encore choisi
+    // factsMateriality[index] = boolean (true/false) or null if not yet selected
     let factsMateriality = [];
-    // factsProofs[index] = tableau de chaînes (les matérialités saisies)
+    // factsProofs[index] = array of strings (the materials entered)
     let factsProofs = [];
     
     let verifiedCount = 0;
@@ -503,11 +503,11 @@
     // IndexedDB
     let db = null;
 
-    // Historique en mémoire
+    // History in memory
     let savedStatements = [];
-    // Générateur d’ID auto-incrémenté
+    // Self-incrementing ID generator
     let autoIncrementID = 1;
-    // ID de la fiche en cours d’édition (null = création)
+    // ID of record being edited (null = created)
     let currentlyEditingID = null;
 
     // ---------------------------
@@ -543,7 +543,7 @@
     const clearAllBtn = document.getElementById("clear-all");
     const exportPdfBtn = document.getElementById("export-pdf");
 
-    // NEW CODE for Import/Export JSON
+    // Import/Export JSON
     const exportJsonBtn = document.getElementById("export-json");
     const importJsonBtn = document.getElementById("import-json");
 
@@ -610,16 +610,16 @@
     });
     document.getElementById("prev1").disabled = true;
 
-    // NEW CODE: Export JSON
+    // Export JSON
     exportJsonBtn.addEventListener("click", () => {
-      // On sérialise tout l'historique
+      // We serialize all history
       let data = JSON.stringify(savedStatements, null, 2);
-      // On crée un Blob "text/json"
+      // We create a Blob "text/json"
       let blob = new Blob([data], {type: "application/json"});
-      // URL temporaire
+      // Temporary URL
       let url = URL.createObjectURL(blob);
 
-      // Création d'un lien "invisible" pour forcer le téléchargement
+      // Creating an "invisible" link to force the download
       let a = document.createElement("a");
       a.href = url;
       a.download = "factcheck_memory.json";
@@ -629,7 +629,7 @@
       URL.revokeObjectURL(url);
     });
 
-    // NEW CODE: Import JSON
+    // Import JSON
     importJsonBtn.addEventListener("click", () => {
       let fileInput = document.createElement('input');
       fileInput.type = 'file';
@@ -644,21 +644,21 @@
           try {
             let data = JSON.parse(content);
 
-            // On suppose que "data" est le tableau savedStatements
+            // Assume “data” is the array savedStatements
             if (!Array.isArray(data)) {
               alert("Invalid JSON format.");
               return;
             }
-            // On écrase la base existante
+            // Overwrite the existing base
             let txn = db.transaction(["statements"], "readwrite");
             let store = txn.objectStore("statements");
             let clearReq = store.clear();
             clearReq.onsuccess = function() {
-              // On enregistre chaque entrée
+              // Each entry is recorded
               data.forEach(item => {
                 store.put(item);
               });
-              // On met aussi à jour la variable en mémoire
+              // We also update the variable in memory
               savedStatements = data;
               renderHistory();
               resetAllData();
@@ -689,7 +689,7 @@
       let val = factInput.value.trim();
       if (!val) return;
       facts.push(val);
-      // On initialise la valeur de factsMateriality et factsProofs pour ce nouveau fait
+      // We initialize the value of factsMateriality and factsProofs for this new fact
       factsMateriality.push(null);
       factsProofs.push([]);
       factInput.value = "";
@@ -735,17 +735,29 @@
 
     document.getElementById("next3").addEventListener("click", () => {
       if (facts.length === 0) return;
-      // Vérif si tout est coché (true/false)
+      // Check if everything is checked (true/false)
       if (factsMateriality.includes(null)) {
         alert("Please select Yes/No for all facts before proceeding.");
         return;
       }
-      // Calcul du score
+      // Score calculation
       verifiedCount = factsMateriality.filter(v => v === true).length;
       verifiedPct = Math.round((verifiedCount / facts.length) * 100);
       isStatementTrue = (verifiedCount === facts.length);
       goToStep(4);
       buildProofsInterface();
+      
+      if (verifiedCount === 0) {
+        // If no fact is true, skip step4 and jump directly to step5
+        goToStep(5);
+        showResult(true);
+        saveCurrentStatement();
+      } else {
+        // Otherwise, proceed as before
+        goToStep(4);
+        buildProofsInterface();
+      }
+      
     });
 
     function buildMaterialityList() {
@@ -779,7 +791,7 @@
           item.style.backgroundColor = "#fecdd3";
         });
 
-        // Couleur initiale si déjà choisi
+        // Initial color if already selected
         if (factsMateriality[index] === true) {
           item.style.backgroundColor = "#bbf7d0";
         } else if (factsMateriality[index] === false) {
@@ -803,7 +815,7 @@
       goToStep(3);
     });
     document.getElementById("next4").addEventListener("click", () => {
-      // On passe directement à la conclusion
+      // We go straight to the conclusion
       goToStep(5);
       showResult(true);
       saveCurrentStatement();
@@ -813,7 +825,7 @@
       additionalProofWrapper.innerHTML = "";
       facts.forEach((fact, idx) => {
         if (factsMateriality[idx] !== true) {
-          // Fait non vrai => on n'affiche pas la possibilité d'ajouter des proofs
+          // Fact not true => the possibility of adding proofs is not displayed
           return;
         }
         let container = document.createElement("div");
@@ -824,12 +836,12 @@
         title.textContent = "Fact: " + fact;
         container.appendChild(title);
 
-        // Liste UL des proofs
+        // UL list of proofs
         let ul = document.createElement("ul");
         ul.className = "proof-list";
         container.appendChild(ul);
 
-        // Boutons + champ
+        // Buttons + field
         let inputContainer = document.createElement("div");
         inputContainer.className = "proof-input-container";
         let proofInput = document.createElement("input");
@@ -861,7 +873,7 @@
         inputContainer.appendChild(addBtn);
         container.appendChild(inputContainer);
 
-        // Fonction de rendu
+        // Rendering function
         function renderProofs() {
           ul.innerHTML = "";
           factsProofs[idx].forEach((p, pIndex) => {
@@ -882,7 +894,7 @@
           });
         }
 
-        // On lance le rendu initial
+        // Launch initial rendering
         renderProofs();
         additionalProofWrapper.appendChild(container);
       });
@@ -892,7 +904,12 @@
     // Step 5: Final result
     // ---------------------------
     document.getElementById("prev5").addEventListener("click", () => {
-      goToStep(4);
+      // If there are no true facts, skip step4 when going backward
+      if (verifiedCount === 0) {
+        goToStep(3);
+      } else {
+        goToStep(4);
+      }
     });
     document.getElementById("restart").addEventListener("click", () => {
       resetAllData();
@@ -900,7 +917,7 @@
     });
 
     function showResult(forceLastDot = false) {
-      // Calcul final de veracity color
+      // Final calculation of veracity color
       let colorClass = "bg-red";
       if (verifiedPct > 90) {
         colorClass = "bg-green";
@@ -964,21 +981,18 @@
         });
         let avgVeracity = Math.round(sumVeracity / totalCount);
     
-        // 3) Determine prefix: "TRUE", "ALMOST_TRUE", "ALMOST_FALSE", or "FALSE"
-        //    - 100 => "TRUE"
-        //    - 81..99 => "FALSE"
-        //    - 51..80 => "ALMOST_TRUE"
-        //    - 0..50 => "ALMOST_FALSE"
+        // 3) Determine the prefix
         let prefix = "FALSE"; // default
         if (avgVeracity === 100) {
           prefix = "TRUE";
-        } else if (avgVeracity > 80) {
-          prefix = "FALSE"; // because 81..99 => "FALSE"
         } else if (avgVeracity > 50) {
-          prefix = "ALMOST_TRUE";
+          prefix = "RATHER_TRUE";
+        } else if (avgVeracity == 50) {
+          prefix = "HALF_TRUE_FALSE";
+        } else if (avgVeracity === 0) {
+          prefix = "FALSE";
         } else {
-          // 0..50 => ALMOST_FALSE
-          prefix = "ALMOST_FALSE";
+          prefix = "RATHER_FALSE";
         }
     
         // 4) Nicely formatted date for display and file name
