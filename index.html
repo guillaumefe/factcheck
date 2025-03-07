@@ -1306,7 +1306,11 @@
     
     // Returns to the beginning of the process
     document.getElementById("factcheck-title").addEventListener("click", () => {
-      resetAllData();
+      if (currentStep === 5) {
+        resetAllData();
+      } else if (window.confirm("Reset current data?")) {
+          resetAllData();
+      }
       goToStep(1);
     });
 
