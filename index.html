@@ -394,6 +394,9 @@
 
       <!-- Step 1: Enter Statement -->
       <div id="step1" class="step active">
+        <div id="edit-mode-message" style="display:none; margin-top:8px; color:#b91c1c; font-weight:bold;">
+          Currently editing an existing statement...
+        </div>
         <form id="form-step1">
           <div class="field">
             <label for="statement-input">Enter your statement</label>
@@ -468,7 +471,7 @@
         <div id="result-box" class="result-box"></div>
         <div class="buttons">
           <button type="button" id="prev5">Previous</button>
-          <button type="button" id="restart">Try again</button>
+          <button type="button" id="restart">New analysis</button>
         </div>
       </div>
 
@@ -1131,7 +1134,7 @@
       historyContainer.style.display = "block";
       historyList.innerHTML = "";
 
-      // Calcul d'un "résultat consolidé" juste pour l'affichage du footer
+      // Calculation of a “consolidated result” just for displaying the footer
       let totalCount = savedStatements.length;
       let sumVeracity = 0;
       savedStatements.forEach(s => {
@@ -1145,7 +1148,7 @@
 
       let lineText = `Consolidated veracity: ${avgVeracity}%`;
 
-      // On parcourt chaque statement
+      // We go through each statement
       savedStatements.forEach(s => {
         let item = document.createElement("div");
         item.className = "history-item";
@@ -1177,7 +1180,7 @@
         item.appendChild(labelDiv);
         item.appendChild(btnsDiv);
 
-        // Lorsqu'on clique pour modifier
+        // When clicked to modify
         item.addEventListener("click", () => {
           loadStatementForEdit(s);
         });
@@ -1190,12 +1193,12 @@
     }
 
     function saveCurrentStatement() {
-      // S’il n’y a pas encore d’ID, on en attribue un nouvel autoIncrementID
+      // If there is no ID yet, we assign a new autoIncrementID
       if (currentlyEditingID === null) {
         currentlyEditingID = autoIncrementID++;
       }
     
-      // On construit l’objet avec l’ID actuel
+      // Build object with current ID
       let obj = {
         id: currentlyEditingID,
         statement: statement,
@@ -1206,29 +1209,29 @@
         isTrue: isStatementTrue
       };
     
-      // On supprime l’ancienne version s’il y en avait une avec le même ID
+      // We delete the old version if there was one with the same ID.
       savedStatements = savedStatements.filter(x => x.id !== obj.id);
     
-      // On push la nouvelle version
+      // Push the new version
       savedStatements.push(obj);
       
-      // On enregistre en base (IndexedDB)
+      // Save in database (IndexedDB)
       let txn = db.transaction(["statements"], "readwrite");
       let store = txn.objectStore("statements");
       store.put(obj);
     
-      // Puis on rafraîchit l’affichage de l’historique
+      // Then refresh the history display
       renderHistory();
     }
 
     function loadStatementForEdit(s) {
-      // On réinitialise tout
+      // Reset everything
       resetAllData();
 
-      // On remet l'ID de l'élément qu'on édite
+      // Reset the ID of the element being edited
       currentlyEditingID = s.id; // c'est reparti en mode "édition"
 
-      // On recharge ses données
+      // Reload data
       statement = s.statement;
       facts = [...s.facts];
       factsMateriality = [...s.factsMateriality];
@@ -1236,23 +1239,26 @@
       verifiedPct = s.verifiedPct;
       isStatementTrue = s.isTrue;
 
-      // On rafraîchit l'écran
+      // Refresh screen
       statementInput.value = statement;
       statementText.textContent = "Statement: " + statement;
       renderFacts();
       buildMaterialityList();
       buildProofsInterface();
+      
+      // Show the edit-mode message
+      document.getElementById("edit-mode-message").style.display = "block";
 
-      // On revient à l'étape 1
+      // Back to step 1
       goToStep(1);
     }
 
     function resetAllData() {
-      // On enlève la classe .active à toutes les étapes
+      // We remove the .active class at all stages
       for (let i = 1; i <= 5; i++) {
         steps[i].classList.remove("active");
       }
-      // Ensuite on réinitialise notre compteur d’étape
+      // Then we reset our step counter
       currentStep = 1;
       steps[currentStep].classList.add("active");
 
@@ -1276,6 +1282,9 @@
 
       resultBox.textContent = "";
       resultBox.className = "result-box";
+      
+      // Hide the edit-mode message
+      document.getElementById("edit-mode-message").style.display = "none";
 
       // Progress bar
       progressDots.forEach((d) => d.classList.remove("active"));
