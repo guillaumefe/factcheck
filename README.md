@@ -1,6 +1,6 @@
 # FactCheck
 
-An automated fact checker that helps break down any statement into concrete facts, assess their scientific veracity, and optionally attach proofs/references.
+An manual local-only fact checker that helps break down any statement into concrete facts, assess their scientific veracity, and optionally attach proofs/references.
 
 ⚠️ If the domain [http://factcheck.run.place](http://factcheck.run.place/) is blocked on your device or network (because of the TLD)
 
